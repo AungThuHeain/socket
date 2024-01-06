@@ -8,7 +8,7 @@ function closeForm() {
 }
 
 //connect to socket server
-const socket = io("https://socket-ie16.onrender.com/:3000", {
+const socket = io("websocket.onrender.com", {
   transports: ["websocket"],
 });
 //get dom
