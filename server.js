@@ -18,8 +18,7 @@ app.get("/", (res, req) => {
 /**create socket */
 const io = socket(server, {
   cors: {
-    origins: "*:*",
-    methods: ["GET", "POST"],
+    origins: "*",
   },
 });
 
