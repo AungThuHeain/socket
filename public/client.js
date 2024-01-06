@@ -8,7 +8,7 @@ function closeForm() {
 }
 
 //connect to socket server
-const socket = io("http://localhost:3000");
+const socket = io("https://socket-ie16.onrender.com/:3000");
 //get dom
 const form = document.querySelector("form");
 const userName = document.querySelector("#name");
