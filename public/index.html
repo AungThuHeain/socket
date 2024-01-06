@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live chat</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+
+    <script
+      src="https://cdn.socket.io/4.7.2/socket.io.min.js"
+      integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <button class="open-button" onclick="openForm()">Chat</button>
+
+    <div class="chat-popup" id="myForm">
+      <form class="form-container">
+        <h1>Chat</h1>
+        <div class="chat-text">
+          <p></p>
+        </div>
+        <p class="typing"></p>
+        <input
+          type="text"
+          id="name"
+          placeholder="Type name.."
+          name="name"
+          required
+        />
+
+        <input
+          type="text"
+          id="msg"
+          placeholder="Type message.."
+          name="msg"
+          required
+        />
+
+        <button type="submit" class="btn">Send</button>
+        <button type="button" class="btn cancel" onclick="closeForm()">
+          Close
+        </button>
+      </form>
+    </div>
+
+    <script src="client.js"></script>
+  </body>
+</html>
