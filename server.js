@@ -15,7 +15,11 @@ app.get("/", (res, req) => {
 });
 
 /**create socket */
-const io = socket(server);
+const io = socket(server, {
+  cors: {
+    origin: ["https://socket-ie16.onrender.com/", "http://127.0.0.1:5500"],
+  },
+});
 io.on("connection", (socket) => {
   console.log("connected to socket server with id : " + socket.id);
 
