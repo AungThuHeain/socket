@@ -8,9 +8,10 @@ function closeForm() {
 }
 
 //connect to socket server
-const socket = io("websocket.onrender.com", {
+const socket = io("wss://websocket.onrender.com", {
   transports: ["websocket"],
 });
+
 //get dom
 const form = document.querySelector("form");
 const userName = document.querySelector("#name");
