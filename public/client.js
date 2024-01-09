@@ -8,9 +8,9 @@ function closeForm() {
 }
 
 //connect to socket server
-const socket = io("https://socket-ie16.onrender.com", {
-  transports: ["websocket"],
-});
+// const socket = io("https://socket-ie16.onrender.com", {
+//   transports: ["websocket"],
+// });
 
 //get dom
 const form = document.querySelector("form");

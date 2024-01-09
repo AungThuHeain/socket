@@ -3,14 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Live chat</title>
+    <title>Client</title>
     <link rel="stylesheet" type="text/css" href="style.css" />
 
-    <!-- <script
-      src="ws://cdn.socket.io/4.7.2/socket.io.min.js"
-      integrity="sha384-mZLF4UVrpi/QTWPA7BjNPEnkIfRFn4ZEO3Qt/HFklTJBj/gBOV8G3HcKn4NfQblz"
-      crossorigin="anonymous"
-    ></script> -->
     <script src="socket.js"></script>
   </head>
   <body>
@@ -45,7 +40,9 @@
         </button>
       </form>
     </div>
-
+    <script>
+      const socket = io("http://localhost:3000/dynamic-222");
+    </script>
     <script src="client.js"></script>
   </body>
 </html>
