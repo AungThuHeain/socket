@@ -12,27 +12,16 @@
     <button class="open-button" onclick="openForm()">Chat</button>
 
     <div class="chat-popup" id="myForm">
+      <div class="user-list"></div>
       <form class="form-container">
         <h1>Chat</h1>
         <div class="chat-text">
           <p></p>
         </div>
         <p class="typing"></p>
-        <input
-          type="text"
-          id="name"
-          placeholder="Type name.."
-          name="name"
-          required
-        />
+        <input type="text" id="name" placeholder="Type name.." name="name" />
 
-        <input
-          type="text"
-          id="msg"
-          placeholder="Type message.."
-          name="msg"
-          required
-        />
+        <input type="text" id="msg" placeholder="Type message.." name="msg" />
 
         <button type="submit" class="btn">Send</button>
         <button type="button" class="btn cancel" onclick="closeForm()">
@@ -41,7 +30,16 @@
       </form>
     </div>
     <script>
-      const socket = io("http://localhost:3000/dynamic-111");
+      //connect to socket server
+      // const socket = io("https://socket-ie16.onrender.com", {
+      //   transports: ["websocket"],
+      // });
+      const socket = io("http://localhost:4000/dynamic-111", {
+        autoConnect: false,
+        auth: {
+          username: "username",
+        },
+      });
     </script>
     <script src="client.js"></script>
   </body>
