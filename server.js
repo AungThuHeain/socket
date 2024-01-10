@@ -29,7 +29,7 @@ const io = socket(server, {
   },
 });
 
-const tenant = io.of(/^\/dynamic-\d+$/);
+const tenant = io.of(/^\/\w+$/);
 
 //middleware
 tenant.use((socket, next) => {

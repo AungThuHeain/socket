@@ -31,15 +31,18 @@
     </div>
     <script>
       //connect to socket server
-      // const socket = io("https://socket-ie16.onrender.com", {
-      //   transports: ["websocket"],
-      // });
-      const socket = io("http://localhost:4000/dynamic-111", {
-        autoConnect: false,
+      const socket = io("https://socket-ie16.onrender.com/client", {
+        transports: ["websocket"],
         auth: {
           username: "username",
         },
       });
+      // const socket = io("http://localhost:4000/client", {
+      //   autoConnect: false,
+      //   auth: {
+      //     username: "username",
+      //   },
+      // });
     </script>
     <script src="client.js"></script>
   </body>
