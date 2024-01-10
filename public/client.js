@@ -14,22 +14,42 @@ const msg = document.querySelector("#msg");
 const chat = document.querySelector(".chat-text");
 const typing = document.querySelector(".typing");
 const userList = document.querySelector(".user-list");
-const allUser = [];
+const sessionID = localStorage.getItem("sessionID");
+const userNameSession = localStorage.getItem("userNameSession");
+
+//check first session
+if (sessionID) {
+  socket.connect();
+  userName.style.display = "none";
+  socket.auth = { sessionID: sessionID, name: userNameSession };
+}
+
+//catch form submit event
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-
-  socket.connect();
-  socket.auth = { name: userName.value };
-
-  const data = {
-    name: userName.value,
-    msg: msg.value,
-  };
-  socket.emit("message", data);
+  if (sessionID) {
+    const data = {
+      name: userNameSession,
+      msg: msg.value,
+    };
+    socket.emit("message", data);
+  } else {
+    socket.connect();
+    socket.auth = { name: userName.value };
+    const data = {
+      name: userName.value,
+      msg: msg.value,
+    };
+    socket.emit("message", data);
+  }
 });
 
 msg.addEventListener("keypress", () => {
-  socket.emit("typing", userName.value);
+  if (sessionID) {
+    socket.emit("typing", userNameSession);
+  } else {
+    socket.emit("typing", userName.value);
+  }
 });
 
 //get reply from server
@@ -54,17 +74,29 @@ socket.on("connect_error", (err) => {
 
 //show user list
 socket.on("users", (users) => {
+  console.log(users);
   users.forEach((user) => {
-    userList.innerHTML += `<button id='${user.userId}' class='specific-user'>${user.userName}</button>`;
-    allUser.push(user);
+    userList.innerHTML += `<button id='${user.userID}' class='specific-user'>${user.userName}</button>`;
   });
+});
+
+//handle session data
+socket.on("session", ({ sessionID, userID, userName }) => {
+  // attach the session ID to the next reconnection attempts
+  //
+  socket.auth = { sessionID: sessionID };
+
+  // store it in the localStorage
+  localStorage.setItem("sessionID", sessionID);
+  localStorage.setItem("userNameSession", userName);
+  // save the ID of the user
+  socket.userID = userID;
 });
 
 //emit private message
 userList.addEventListener("click", function (e) {
   if (e.target.classList.contains("specific-user")) {
     const data = {
-      name: userName.value,
       msg: msg.value,
     };
     socket.emit("private message", {
@@ -75,8 +107,8 @@ userList.addEventListener("click", function (e) {
 });
 
 //accept private message
-socket.on("private message", ({ data, from }) => {
+socket.on("private message", (message) => {
   (userName.value = ""), (msg.value = "");
-  chat.innerHTML += `Private message => ${data.name} : ${data.msg}</p>`;
+  chat.innerHTML += `Private message from ${message.from} => ${message.data}</p>`;
   typing.innerHTML = "";
 });
