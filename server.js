@@ -80,23 +80,7 @@ tenant.on("connection", (socket) => {
 
   const users = [];
 
-  const messagesPerUser = new Map();
-
-  console.log(
-    "store message for private chat",
-    messageStore.findMessagesForUser(socket.userID)
-  );
-
-  messageStore.findMessagesForUser(socket.userID).forEach((message) => {
-    const { from, to } = message;
-    const otherUser = socket.userID === from ? to : from;
-    if (messagesPerUser.has(otherUser)) {
-      messagesPerUser.get(otherUser).push(message);
-    } else {
-      messagesPerUser.set(otherUser, [message]);
-    }
-  });
-
+  //store session on server side
   sessionStore.findAllSessions().forEach((session) => {
     users.push({
       userID: session.userID,
@@ -134,6 +118,11 @@ tenant.on("connection", (socket) => {
     tenant.to(to).to(socket.userID).emit("private message", message);
 
     messageStore.saveMessage(message);
+
+    console.log(
+      "store message for private chat",
+      messageStore.findMessagesForUser(socket.userID)
+    );
   });
 
   // notify users upon disconnection
