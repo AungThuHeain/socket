@@ -48,28 +48,22 @@ tenant.use((socket, next) => {
     }
   }
 
+  if (!userName) {
+    return next(new Error("Invalid username"));
+  }
+
   // create new session
 
-  if (socket.handshake.auth.adminId) {
-    socket.sessionID = randomId();
-    socket.userID = socket.handshake.auth.adminId;
-    socket.username = "Admin";
-  } else {
-    if (!userName) {
-      return next(new Error("Invalid username"));
-    }
-    socket.sessionID = randomId();
-    socket.userID = randomId();
-    socket.username = userName;
-  }
+  socket.sessionID = randomId();
+  socket.userID = randomId();
+  socket.username = userName;
 
   next();
 });
 
 tenant.on("connection", (socket) => {
-  const users = [];
   console.log(
-    `User '${socket.username}-${socket.userID}' connected on organization '${socket.nsp.name}' server`
+    `User '${socket.username}' connected on organization '${socket.nsp.name}' server`
   );
 
   //save session data on server local storage
@@ -79,12 +73,12 @@ tenant.on("connection", (socket) => {
     userName: socket.username,
   });
 
-  //emit session detail to store on local storage
-  socket.emit("session", {
-    sessionID: socket.sessionID,
-    userID: socket.userID,
-    userName: socket.username,
-  });
+  const nameSpace = socket.nsp;
+
+  // join the "userID" room
+  socket.join(socket.userID);
+
+  const users = [];
 
   //store session on server side
   sessionStore.findAllSessions().forEach((session) => {
@@ -94,24 +88,18 @@ tenant.on("connection", (socket) => {
     });
   });
 
-  const nameSpace = socket.nsp;
-
-  // join the "userID" room
-  socket.join(socket.userID);
-
   socket.emit("users", users);
 
-  socket.emit("chat list");
-  socket.on("message", function (data) {
-    //nameSpace.emit("chat", data);
-    const message = {
-      data: data.msg,
-      from: socket.userID,
-      to: "12345",
-    };
-    tenant.to("12345").to(socket.userID).emit("private message", message);
+  //emit session detail
 
-    messageStore.saveMessage(message);
+  socket.emit("session", {
+    sessionID: socket.sessionID,
+    userID: socket.userID,
+    userName: socket.username,
+  });
+
+  socket.on("message", function (data) {
+    nameSpace.emit("chat", data);
   });
 
   //handle typing
@@ -121,7 +109,6 @@ tenant.on("connection", (socket) => {
 
   //handle private message
   socket.on("private message", ({ data, to }) => {
-    console.log("admin rec id", to);
     const message = {
       data: data.msg,
       from: socket.userID,
@@ -136,30 +123,6 @@ tenant.on("connection", (socket) => {
       "store message for private chat",
       messageStore.findMessagesForUser(socket.userID)
     );
-  });
-
-  socket.on("admin to client", ({ data, to }) => {
-    const message = {
-      data: data.msg,
-      from: socket.userID,
-      to: to,
-    };
-    tenant.to(to).to(socket.userID).emit("private message", message);
-
-    messageStore.saveMessage(message);
-
-    const old_mes = messageStore.findMessagesForUser(to);
-    socket.emit("chat message", old_mes);
-    // console.log(
-    //   "store message for private chat",
-    //   messageStore.findMessagesForUser(socket.userID)
-    // );
-  });
-
-  socket.on("get message", (id) => {
-    // console.log(id);
-    const message = messageStore.findMessagesForUser(id);
-    socket.emit("chat message", message);
   });
 
   // notify users upon disconnection

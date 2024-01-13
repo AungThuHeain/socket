@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>whatsapp</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Option 1: Include in HTML -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"
+    />
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+    <script src="socket.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row p-5">
+        <div class="col-md-3 left-side vh-100 border-end">
+          <div class="row">
+            <div class="col-12 bg-secondary p-2">
+              <h6 class="fw-bold">Chats</h6>
+            </div>
+            <div class="col-12 p-2">
+              <div>
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  class="form-control"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="user-list"></div>
+        </div>
+        <div class="col-md-9 right-side vh-100">
+          <div class="row">
+            <div class="col-12 bg-secondary p-2">
+              <h6 class="fw-bold">Aung Thu Heain</h6>
+            </div>
+          </div>
+          <div class="row">
+            <div class="message_box">
+              <!-- <div class="col-6 m-2 rounded bg-success p-3 text-left float-end">
+                message
+                <h6 class="text-muted float-end">1:7</h6>
+              </div> -->
+            </div>
+          </div>
+          <div class="row text-input">
+            <div>
+              <input type="text" class="input_text form-control w-100 msg" />
+              <button class="btn btn-success mt-2 send">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      //connect to socket server
+      // const socket = io("https://socket-ie16.onrender.com/client", {
+      //   transports: ["websocket"],
+      //   auth: {
+      //     username: "username",
+      //   },
+      // });
+      const socket = io("http://localhost:4000/client", {
+        //autoConnect: true,
+        auth: {
+          adminId: "12345",
+        },
+      });
+    </script>
+    <script src="admin.js"></script>
+  </body>
+</html>

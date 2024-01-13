@@ -74,7 +74,6 @@ socket.on("connect_error", (err) => {
 
 //show user list
 socket.on("users", (users) => {
-  console.log(users);
   users.forEach((user) => {
     userList.innerHTML += `<button id='${user.userID}' class='specific-user'>${user.userName}</button>`;
   });
@@ -108,6 +107,13 @@ userList.addEventListener("click", function (e) {
 
 //accept private message
 socket.on("private message", (message) => {
+  (userName.value = ""), (msg.value = "");
+  chat.innerHTML += `${message.data}</p>`;
+  typing.innerHTML = "";
+});
+
+//accept private message
+socket.on("admin to client", (message) => {
   (userName.value = ""), (msg.value = "");
   chat.innerHTML += `Private message from ${message.from} => ${message.data}</p>`;
   typing.innerHTML = "";
