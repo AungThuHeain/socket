@@ -4,6 +4,7 @@ const userList = document.querySelector(".user-list");
 const msg = document.querySelector(".msg");
 const send = document.querySelector(".send");
 const message_box = document.querySelector(".message_box");
+const user_name = document.querySelector("#user_name");
 
 if (sessionID) {
   socket.auth = { sessionID: sessionID, name: userNameSession, adminId: 12345 };
@@ -32,7 +33,7 @@ socket.on("users", (users) => {
               class="d-flex justify-content-between mt-2 p-2 bg-secondary rounded specific_user"
             >
               <h6 class="fw-bold">${user.userName}</h6>
-              <small class="fw-semibold">1:50</small>
+             
             </div>`;
   });
 });
@@ -43,6 +44,7 @@ userList.addEventListener("click", (e) => {
     send.setAttribute("id", e.target.id);
     message_box.className = "";
     message_box.classList.add(e.target.id, "message_box");
+    user_name.innerHTML = e.target.textContent;
   }
   socket.emit("get message", e.target.id);
 });
@@ -92,7 +94,7 @@ socket.on("user to admin", (message) => {
   const panel_id = message.from.toString();
 
   const panel = document.querySelector("." + panel_id);
-
+  //console.log(message);
   panel.innerHTML += `
 
   <div class="col-6 m-2 rounded bg-info p-3 text-left float-start">
