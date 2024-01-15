@@ -43,6 +43,19 @@ socket.on("users", (users) => {
   });
 });
 
+//show update user list
+socket.on("user list update", (update_users) => {
+  userList.innerHTML = "";
+  update_users.forEach((user) => {
+    userList.innerHTML += `<div id="${user.userID}"
+              class="d-flex justify-content-between mt-2 p-2 bg-secondary rounded specific_user"
+            >
+              <h6 class="fw-bold">${user.userName}</h6>
+             
+            </div>`;
+  });
+});
+
 /////////////////////////emit to server////////////////////////////////////////////////
 userList.addEventListener("click", (e) => {
   if (e.target.classList.contains("specific_user")) {
@@ -95,16 +108,18 @@ socket.on("admin to client", (message) => {
 
 //accept private message
 socket.on("user to admin", (message) => {
+  socket.emit("user list update");
   const panel_id = "#id" + message.from;
-  // const  = "#id" + panel_id;
   const panel = document.querySelector(panel_id);
 
-  panel.innerHTML += `
+  if (panel) {
+    panel.innerHTML += `
 
-  <div class="col-6 m-2 rounded bg-info p-3 text-left float-start">
-   <p class="text-break">
-         ${message.data}
-   </p>
-   <h6 class="text-muted float-end">1:6</h6>
-  </div>`;
+    <div class="col-6 m-2 rounded bg-info p-3 text-left float-start">
+     <p class="text-break">
+           ${message.data}
+     </p>
+     <h6 class="text-muted float-end">1:6</h6>
+    </div>`;
+  }
 });

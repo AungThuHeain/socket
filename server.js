@@ -135,7 +135,6 @@ tenant.on("connection", (socket) => {
 
   ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
   socket.on("get old message", () => {
-    console.log("i am old user", socket.userID);
     const messages = messageStore.findMessagesForUser(socket.userID);
     //emit to user to show old message on chat widget
     socket.emit("get old message", messages);
@@ -152,6 +151,17 @@ tenant.on("connection", (socket) => {
     tenant.to(data.to).to(socket.userID).emit("user to admin", message);
 
     messageStore.saveMessage(message);
+  });
+
+  socket.on("user list update", () => {
+    const update_users = [];
+    sessionStore.findAllSessions().forEach((session) => {
+      update_users.push({
+        userID: session.userID,
+        userName: session.userName,
+      });
+    });
+    socket.emit("user list update", update_users);
   });
 
   //handle typing
