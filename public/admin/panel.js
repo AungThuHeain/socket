@@ -5,11 +5,16 @@ const msg = document.querySelector(".msg");
 const send = document.querySelector(".send");
 const message_box = document.querySelector(".message_box");
 const user_name = document.querySelector("#user_name");
+let predefine_admin_id = 12345;
 
 if (sessionID) {
-  socket.auth = { sessionID: sessionID, name: userNameSession, adminId: 12345 };
+  socket.auth = {
+    sessionID: sessionID,
+    name: userNameSession,
+    adminId: predefine_admin_id,
+  };
 } else {
-  socket.auth = { adminId: 12345 };
+  socket.auth = { adminId: predefine_admin_id };
 }
 
 ////////////////////////////////////emit from server //////////////////////////////////////////////
@@ -42,8 +47,7 @@ socket.on("users", (users) => {
 userList.addEventListener("click", (e) => {
   if (e.target.classList.contains("specific_user")) {
     send.setAttribute("id", e.target.id);
-    message_box.className = "";
-    message_box.classList.add(e.target.id, "message_box");
+    message_box.setAttribute("id", "id" + e.target.id);
     user_name.innerHTML = e.target.textContent;
   }
   socket.emit("get message", e.target.id);
@@ -91,10 +95,10 @@ socket.on("admin to client", (message) => {
 
 //accept private message
 socket.on("user to admin", (message) => {
-  const panel_id = message.from.toString();
+  const panel_id = "#id" + message.from;
+  // const  = "#id" + panel_id;
+  const panel = document.querySelector(panel_id);
 
-  const panel = document.querySelector("." + panel_id);
-  //console.log(message);
   panel.innerHTML += `
 
   <div class="col-6 m-2 rounded bg-info p-3 text-left float-start">

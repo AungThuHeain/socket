@@ -17,6 +17,8 @@ const userList = document.querySelector(".user-list");
 const sessionID = localStorage.getItem("sessionID");
 const userNameSession = localStorage.getItem("userNameSession");
 
+let predefine_admin_id = 12345;
+
 //check first session
 if (sessionID) {
   socket.connect();
@@ -45,7 +47,7 @@ form.addEventListener("submit", (e) => {
     const data = {
       name: userNameSession,
       msg: msg.value,
-      to: 12345,
+      to: predefine_admin_id,
     };
     socket.emit("user to admin", data);
     (userName.value = ""), (msg.value = "");
@@ -55,7 +57,7 @@ form.addEventListener("submit", (e) => {
     const data = {
       name: userName.value,
       msg: msg.value,
-      to: "12345",
+      to: predefine_admin_id,
     };
     socket.emit("user to admin", data);
     (userName.value = ""), (msg.value = "");

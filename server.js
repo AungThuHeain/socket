@@ -142,6 +142,8 @@ tenant.on("connection", (socket) => {
   });
 
   socket.on("user to admin", function (data) {
+    console.log("admin room", data.to);
+    console.log("sender room", socket.userID);
     const message = {
       data: data.msg,
       from: socket.userID,
