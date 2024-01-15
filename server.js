@@ -130,19 +130,25 @@ tenant.on("connection", (socket) => {
     };
     //emit to user and admin to append new message on chat window
     tenant.to(to).to(socket.userID).emit("admin to client", message);
-    console.log("admin room ", socket.userID);
     messageStore.saveMessage(message);
   });
 
   ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
+  socket.on("get old message", () => {
+    console.log("i am old user", socket.userID);
+    const messages = messageStore.findMessagesForUser(socket.userID);
+    //emit to user to show old message on chat widget
+    socket.emit("get old message", messages);
+  });
 
   socket.on("user to admin", function (data) {
     const message = {
       data: data.msg,
       from: socket.userID,
-      to: "12345",
+      to: data.to,
     };
-    tenant.to("12345").to(socket.userID).emit("user to admin", message);
+    tenant.to(data.to).to(socket.userID).emit("user to admin", message);
+
     messageStore.saveMessage(message);
   });
 

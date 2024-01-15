@@ -20,6 +20,7 @@ const userNameSession = localStorage.getItem("userNameSession");
 //check first session
 if (sessionID) {
   socket.connect();
+  socket.emit("get old message");
   userName.style.display = "none";
   socket.auth = { sessionID: sessionID, name: userNameSession };
 }
@@ -44,6 +45,7 @@ form.addEventListener("submit", (e) => {
     const data = {
       name: userNameSession,
       msg: msg.value,
+      to: 12345,
     };
     socket.emit("user to admin", data);
   } else {
@@ -52,6 +54,7 @@ form.addEventListener("submit", (e) => {
     const data = {
       name: userName.value,
       msg: msg.value,
+      to: "12345",
     };
     socket.emit("user to admin", data);
   }
@@ -66,11 +69,11 @@ form.addEventListener("submit", (e) => {
 // });
 
 //get reply from server
-socket.on("chat", (data) => {
-  (userName.value = ""), (msg.value = "");
-  chat.innerHTML += `<p>${data.name} : ${data.msg}</p>`;
-  typing.innerHTML = "";
-});
+// socket.on("chat", (data) => {
+//   (userName.value = ""), (msg.value = "");
+//   chat.innerHTML += `<p>${data.name} : ${data.msg}</p>`;
+//   typing.innerHTML = "";
+// });
 
 //get typing emit from server
 // socket.on("typing", (name) => {
@@ -85,16 +88,20 @@ socket.on("chat", (data) => {
 //   console.log(err.message); // prints the message associated with the error
 // });
 
+//show old message when old user reconnect
+socket.on("get old message", (messages) => {
+  messages.forEach((message) => {
+    chat.innerHTML += `<p>${message.data}</p>`;
+  });
+});
 //accept private message
 socket.on("user to admin", (message) => {
-  (userName.value = ""), (msg.value = "");
-  chat.innerHTML += `${message.data}</p>`;
+  chat.innerHTML += `<p>${message.data}</p>`;
   typing.innerHTML = "";
 });
 
 //accept private message
 socket.on("admin to client", (message) => {
-  (userName.value = ""), (msg.value = "");
-  chat.innerHTML += ` from admin => ${message.data}</p>`;
+  chat.innerHTML += `<p>${message.data}</p>`;
   typing.innerHTML = "";
 });

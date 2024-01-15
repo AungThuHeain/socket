@@ -79,10 +79,7 @@
       //   },
       // });
       const socket = io("http://localhost:4000/client", {
-        //autoConnect: true,
-        auth: {
-          adminId: "12345",
-        },
+        autoConnect: true,
       });
     </script>
     <script src="panel.js"></script>
