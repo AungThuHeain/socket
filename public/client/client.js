@@ -51,6 +51,7 @@ form.addEventListener("submit", (e) => {
     };
     socket.emit("user to admin", data);
     (userName.value = ""), (msg.value = "");
+    userName.style.display = "none";
   } else {
     socket.connect();
     socket.auth = { name: userName.value };
@@ -61,6 +62,7 @@ form.addEventListener("submit", (e) => {
     };
     socket.emit("user to admin", data);
     (userName.value = ""), (msg.value = "");
+    userName.style.display = "none";
   }
 });
 

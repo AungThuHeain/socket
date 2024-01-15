@@ -52,7 +52,7 @@ tenant.use((socket, next) => {
   // create new session
 
   if (socket.handshake.auth.adminId) {
-    socket.sessionID = randomId();
+    socket.sessionID = socket.handshake.auth.adminId;
     socket.userID = socket.handshake.auth.adminId;
     socket.username = "Admin";
   } else {
