@@ -19,9 +19,12 @@ const server = app.listen("4000", () => {
   console.log("server run on port 4000");
 });
 
-// app.get("/:dynamic", (res, req) => {
-//   req.sendFile(__dirname + "/public/admin/panel.html");
-// });
+app.get("/admin", (res, req) => {
+  req.sendFile(__dirname + "/public/admin/panel.html");
+});
+app.get("/client", (res, req) => {
+  req.sendFile(__dirname + "/public/client/client.html");
+});
 
 /**create socket */
 const io = socket(server, {
