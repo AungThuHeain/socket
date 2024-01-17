@@ -7,6 +7,16 @@ const message_box = document.querySelector(".message_box");
 const user_name = document.querySelector("#user_name");
 let predefine_admin_id = 12345;
 
+//connect to socket server
+const socket = io("https://socket-ie16.onrender.com/org_id", {
+  transports: ["websocket"],
+  autoConnect: true,
+});
+
+// const socket = io("http://localhost:4000/org_id", {
+//   autoConnect: true,
+// });
+
 if (sessionID) {
   socket.auth = {
     sessionID: sessionID,
@@ -34,11 +44,11 @@ socket.on("session", ({ sessionID, userID, userName }) => {
 socket.on("users", (users) => {
   console.log(users);
   users.forEach((user) => {
-    userList.innerHTML += `<div id="${user.userID}"
-              class="d-flex justify-content-between mt-2 p-2 bg-secondary rounded specific_user"
+    userList.innerHTML += `<div
+              class="d-flex justify-content-between mt-2 mr-2  bg-blue-500 rounded "
             >
-              <h6 class="fw-bold">${user.userName}</h6>
-             
+              <h6 id="${user.userID}" class="fw-bold specific_user p-2">${user.userName}</h6>
+
             </div>`;
   });
 });
@@ -47,12 +57,12 @@ socket.on("users", (users) => {
 socket.on("user list update", (update_users) => {
   userList.innerHTML = "";
   update_users.forEach((user) => {
-    userList.innerHTML += `<div id="${user.userID}"
-              class="d-flex justify-content-between mt-2 p-2 bg-secondary rounded specific_user"
-            >
-              <h6 class="fw-bold">${user.userName}</h6>
-             
-            </div>`;
+    userList.innerHTML += `<div
+        class="d-flex justify-content-between mt-2 mr-2  bg-blue-500 rounded "
+      >
+        <h6 id="${user.userID}" class="fw-bold specific_user p-2">${user.userName}</h6>
+
+      </div>`;
   });
 });
 
@@ -83,12 +93,12 @@ socket.on("chat history", (messages) => {
   messages.forEach((message) => {
     message_box.innerHTML += `
 
-     <div class="col-6 m-2 rounded bg-info p-3 text-left float-start">
-      <p class="text-break">
-            ${message.data}
-      </p>
-      <h6 class="text-muted float-end">1:6</h6>
-     </div>`;
+    <div class="p-6 max-w-sm mx-2 bg-white rounded-xl shadow-lg my-2 items-start space-x-4">
+    <p class="text-slate-500">
+          ${message.data}
+    </p>
+    <h6 class="text-muted text-end">1:6</h6>
+   </div>`;
   });
 });
 
@@ -96,12 +106,12 @@ socket.on("chat history", (messages) => {
 socket.on("admin to client", (message) => {
   message_box.innerHTML += `
 
-  <div class="col-6 m-2 rounded bg-info p-3 text-left float-start">
-   <p class="text-break">
-         ${message.data}
-   </p>
-   <h6 class="text-muted float-end">1:6</h6>
-  </div>`;
+  <div class="p-6 max-w-sm mx-2 bg-white rounded-xl shadow-lg my-2  items-end space-x-4">
+  <p class="text-slate-500">
+        ${message.data}
+  </p>
+  <h6 class="text-muted text-end">1:6</h6>
+ </div>`;
 });
 
 ////////////////////////////
@@ -115,11 +125,11 @@ socket.on("user to admin", (message) => {
   if (panel) {
     panel.innerHTML += `
 
-    <div class="col-6 m-2 rounded bg-info p-3 text-left float-start">
-     <p class="text-break">
+    <div class="p-6 max-w-sm mx-2 bg-white rounded-xl shadow-lg my-2 items-start space-x-4">
+     <p class="text-slate-500">
            ${message.data}
      </p>
-     <h6 class="text-muted float-end">1:6</h6>
+     <h6 class="text-muted text-end">1:6</h6>
     </div>`;
   }
 });

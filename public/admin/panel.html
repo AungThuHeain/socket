@@ -11,7 +11,7 @@
       integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="output.css" />
 
     <!-- Option 1: Include in HTML -->
     <link
@@ -27,54 +27,52 @@
     <script src="socket.js"></script>
   </head>
   <body>
-    <div class="container">
-      <div class="row p-5">
-        <div class="col-md-3 left-side vh-100 border-end">
-          <div class="row">
-            <div class="col-12 bg-secondary p-2">
-              <h6 class="fw-bold">Chats</h6>
+    <div class="container mx-auto px-4">
+      <div class="flex p-5">
+        <div class="md:w-3/12 left-side h-screen border-r">
+          <div class="">
+            <div class="w-full bg-secondary p-2">
+              <h6 class="font-bold">Chats</h6>
             </div>
-            <div class="col-12 p-2">
+            <div class="w-full p-2">
               <div>
                 <input
                   type="text"
                   placeholder="Search..."
-                  class="form-control"
+                  class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
             </div>
           </div>
           <div class="user-list"></div>
         </div>
-        <div class="col-md-9 right-side vh-100">
-          <div class="row">
-            <div class="col-12 bg-secondary p-2">
-              <h6 class="fw-bold" id="user_name">Admin</h6>
+        <div class="md:w-9/12 right-side h-screen">
+          <div class="flex">
+            <div class="w-full bg-secondary p-2">
+              <h6 class="font-bold" id="user_name">Admin</h6>
             </div>
           </div>
-          <div class="row">
-            <div class="message_box"></div>
+          <div class="my-2">
+            <div class="message_box ml-4 overflow-y-auto h-96"></div>
           </div>
-          <div class="row text-input">
-            <div>
-              <input type="text" class="input_text form-control w-100 msg" />
-              <button class="btn btn-success mt-2 send">Send</button>
+          <div class="flex items-end text-input ms-2">
+            <div class="flex-1">
+              <input
+                type="text"
+                class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline msg"
+              />
+            </div>
+            <div class="flex-2 mb-3 ms-2">
+              <button
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded send"
+              >
+                Send
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <script>
-      //connect to socket server
-      const socket = io("https://socket-ie16.onrender.com/org_id", {
-        transports: ["websocket"],
-        autoConnect: true,
-      });
-      // const socket = io("http://localhost:4000/org_id", {
-      //   autoConnect: true,
-      // });
-    </script>
     <script src="panel.js"></script>
   </body>
 </html>
