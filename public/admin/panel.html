@@ -67,13 +67,13 @@
 
     <script>
       //connect to socket server
-      // const socket = io("https://socket-ie16.onrender.com/org_id", {
-      //   transports: ["websocket"],
-      //   autoConnect: true,
-      // });
-      const socket = io("http://localhost:4000/org_id", {
+      const socket = io("https://socket-ie16.onrender.com/org_id", {
+        transports: ["websocket"],
         autoConnect: true,
       });
+      // const socket = io("http://localhost:4000/org_id", {
+      //   autoConnect: true,
+      // });
     </script>
     <script src="panel.js"></script>
   </body>

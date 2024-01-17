@@ -37,16 +37,15 @@
     </div>
     <script>
       //connect to socket server
-      // const socket = io("https://socket-ie16.onrender.com/org_id", {
-      //   transports: ["websocket"],
-      //   auth: {
-      //     username: "username",
-      //     autoConnect: false,
-      //   },
-      // });
-      const socket = io("http://localhost:4000/org_id", {
-        autoConnect: false,
+      const socket = io("https://socket-ie16.onrender.com/org_id", {
+        transports: ["websocket"],
+        auth: {
+          autoConnect: false,
+        },
       });
+      // const socket = io("http://localhost:4000/org_id", {
+      //   autoConnect: false,
+      // });
     </script>
     <script src="client.js"></script>
   </body>
