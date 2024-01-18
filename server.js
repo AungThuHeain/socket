@@ -78,16 +78,18 @@ tenant.on("connection", (socket) => {
 
   //save session data on server local storage
 
-  sessionStore.saveSession(socket.sessionID, {
+  sessionStore.saveSession(socket.nsp.name, {
     userID: socket.userID,
     userName: socket.username,
   });
 
   //store session on server side
-  console.log(sessionStore.findSession(socket.sessionID));
+  //console.log(sessionStore.findSession(socket.nsp.name));
+  console.log(sessionStore.findAllSessions());
 
   sessionStore.findAllSessions().forEach((session) => {
     users.push({
+      tenantID: socket.nsp.name,
       userID: session.userID,
       userName: session.userName,
     });
