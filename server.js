@@ -89,7 +89,7 @@ tenant.on("connection", (socket) => {
   console.log(sessionStore.findAllSessions());
 
   sessionStore.findAllSessions().forEach((session) => {
-    console.log(session);
+    console.log(session.tenantID);
     users.push({
       tenantID: socket.nsp.name,
       userID: session.userID,
