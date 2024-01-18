@@ -84,6 +84,8 @@ tenant.on("connection", (socket) => {
   });
 
   //store session on server side
+  console.log(sessionStore.findAllSessions());
+
   sessionStore.findAllSessions().forEach((session) => {
     users.push({
       userID: session.userID,
@@ -144,8 +146,6 @@ tenant.on("connection", (socket) => {
   });
 
   socket.on("user to admin", function (data) {
-    console.log("admin room", data.to);
-    console.log("sender room", socket.userID);
     const message = {
       data: data.msg,
       from: socket.userID,
