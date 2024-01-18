@@ -85,11 +85,8 @@ tenant.on("connection", (socket) => {
   });
 
   //store session on server side
-  //console.log(sessionStore.findSession(socket.nsp.name));
-  console.log(sessionStore.findAllSessions());
 
   sessionStore.findAllSessions().forEach((session) => {
-    console.log(session.tenantID, "should equal", socket.nsp.name);
     if (session.tenantID == socket.nsp.name) {
       users.push({
         tenantID: socket.nsp.name,
@@ -165,10 +162,13 @@ tenant.on("connection", (socket) => {
   socket.on("user list update", () => {
     const update_users = [];
     sessionStore.findAllSessions().forEach((session) => {
-      update_users.push({
-        userID: session.userID,
-        userName: session.userName,
-      });
+      if (session.tenantID == socket.nsp.name) {
+        update_users.push({
+          tenantID: socket.nsp.name,
+          userID: session.userID,
+          userName: session.userName,
+        });
+      }
     });
     socket.emit("user list update", update_users);
   });
