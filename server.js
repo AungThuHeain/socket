@@ -90,13 +90,13 @@ tenant.on("connection", (socket) => {
 
   sessionStore.findAllSessions().forEach((session) => {
     console.log(session.tenantID, "should equal", socket.nsp.name);
-    // if (session.tenantID == "/" + socket.nsp.name) {
-    users.push({
-      tenantID: socket.nsp.name,
-      userID: session.userID,
-      userName: session.userName,
-    });
-    // }
+    if (session.tenantID == socket.nsp.name) {
+      users.push({
+        tenantID: socket.nsp.name,
+        userID: session.userID,
+        userName: session.userName,
+      });
+    }
   });
 
   //const nameSpace = socket.nsp;
