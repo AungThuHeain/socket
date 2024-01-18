@@ -84,7 +84,7 @@ tenant.on("connection", (socket) => {
   });
 
   //store session on server side
-  console.log(sessionStore.findAllSessions());
+  console.log(sessionStore.findSession($socket.sessionID));
 
   sessionStore.findAllSessions().forEach((session) => {
     users.push({
