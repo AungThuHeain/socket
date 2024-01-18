@@ -17,7 +17,7 @@ const userList = document.querySelector(".user-list");
 const sessionID = localStorage.getItem("sessionID");
 const userNameSession = localStorage.getItem("userNameSession");
 
-let predefine_admin_id = 12345;
+let predefine_admin_id = 999999;
 
 //connect to socket server
 // const socket = io("https://socket-ie16.onrender.com/org_id", {
