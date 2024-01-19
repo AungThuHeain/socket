@@ -89,7 +89,7 @@ tenant.on("connection", (socket) => {
   sessionStore.findAllSessions().forEach((session) => {
     // socket.nsp.nam is socket namespace(organization_slug)
     if (
-      session.tenantID == socket.nsp.name ||
+      session.tenantID == socket.nsp.name &&
       session.userID != socket.nsp.name
     ) {
       users.push({
@@ -98,6 +98,7 @@ tenant.on("connection", (socket) => {
         userName: session.userName,
       });
     }
+    console.log(users);
   });
 
   //const nameSpace = socket.nsp;
@@ -167,7 +168,7 @@ tenant.on("connection", (socket) => {
     const update_users = [];
     sessionStore.findAllSessions().forEach((session) => {
       if (
-        session.tenantID == socket.nsp.name ||
+        session.tenantID == socket.nsp.name &&
         session.userID != socket.nsp.name
       ) {
         update_users.push({
