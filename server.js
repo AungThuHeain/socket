@@ -78,7 +78,7 @@ tenant.on("connection", (socket) => {
 
   //save session data on server local storage
 
-  sessionStore.saveSession(socket.userID, {
+  sessionStore.saveSession(socket.sessionID, {
     tenantID: socket.nsp.name,
     userID: socket.userID,
     userName: socket.username,
