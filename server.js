@@ -98,9 +98,8 @@ tenant.on("connection", (socket) => {
         userName: session.userName,
       });
     }
-    console.log(users);
   });
-
+  console.log(users);
   //const nameSpace = socket.nsp;
 
   // join the "userID" room
