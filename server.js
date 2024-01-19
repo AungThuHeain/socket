@@ -90,7 +90,7 @@ tenant.on("connection", (socket) => {
     // socket.nsp.nam is socket namespace(organization_slug)
     if (
       session.tenantID == socket.nsp.name &&
-      session.userID != socket.nsp.name
+      session.tenantID != socket.nsp.name
     ) {
       users.push({
         tenantID: socket.nsp.name,
@@ -169,7 +169,7 @@ tenant.on("connection", (socket) => {
     sessionStore.findAllSessions().forEach((session) => {
       if (
         session.tenantID == socket.nsp.name &&
-        session.userID != socket.nsp.name
+        session.tenantID != socket.nsp.name
       ) {
         update_users.push({
           tenantID: socket.nsp.name,
