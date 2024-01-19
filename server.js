@@ -84,10 +84,14 @@ tenant.on("connection", (socket) => {
     userName: socket.username,
   });
 
-  //store session on server side
+  //store session on server side and show when admin initiate
 
   sessionStore.findAllSessions().forEach((session) => {
-    if (session.tenantID == socket.nsp.name) {
+    // socket.nsp.nam is socket namespace(organization_slug)
+    if (
+      session.tenantID == socket.nsp.name ||
+      session.userID != socket.nsp.name
+    ) {
       users.push({
         tenantID: socket.nsp.name,
         userID: session.userID,
@@ -162,7 +166,10 @@ tenant.on("connection", (socket) => {
   socket.on("user list update", () => {
     const update_users = [];
     sessionStore.findAllSessions().forEach((session) => {
-      if (session.tenantID == socket.nsp.name) {
+      if (
+        session.tenantID == socket.nsp.name ||
+        session.userID != socket.nsp.name
+      ) {
         update_users.push({
           tenantID: socket.nsp.name,
           userID: session.userID,
