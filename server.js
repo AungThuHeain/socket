@@ -88,6 +88,8 @@ tenant.on("connection", (socket) => {
   //store session on server side and show when admin initiate
 
   sessionStore.findAllSessions().forEach((session) => {
+    console.log(session.userID);
+    console.log(socket.nsp.name);
     // socket.nsp.nam is socket namespace(organization_slug)
     if (
       session.tenantID == socket.nsp.name &&
@@ -106,35 +108,6 @@ tenant.on("connection", (socket) => {
 
   // join the "userID" room
   socket.join(socket.userID);
-
-  // notify users upon disconnection
-  socket.on("disconnect", async () => {
-    console.log(
-      ` '${socket.username}' disconnected from room '${socket.userID}'`
-    );
-    sessionStore.saveSession(socket.sessionID, {
-      tenantID: socket.nsp.name,
-      userID: socket.userID,
-      userName: socket.username,
-      connected: "inactive",
-    });
-
-    users.length = 0;
-    sessionStore.findAllSessions().forEach((session) => {
-      if (
-        session.tenantID == socket.nsp.name &&
-        "/" + session.userID != socket.nsp.name
-      ) {
-        users.push({
-          tenantID: socket.nsp.name,
-          userID: session.userID,
-          userName: session.userName,
-          connected: session.connected,
-        });
-      }
-    });
-    tenant.emit("user list update", users);
-  });
 
   //////////////////////emit from server ///////////////////////////////////////////
 
@@ -208,5 +181,34 @@ tenant.on("connection", (socket) => {
   //handle typing
   socket.on("typing", (name) => {
     socket.broadcast.emit("typing", name);
+  });
+
+  // notify users upon disconnection
+  socket.on("disconnect", async () => {
+    console.log(
+      ` '${socket.username}' disconnected from room '${socket.userID}'`
+    );
+    sessionStore.saveSession(socket.sessionID, {
+      tenantID: socket.nsp.name,
+      userID: socket.userID,
+      userName: socket.username,
+      connected: "inactive",
+    });
+
+    users.length = 0;
+    sessionStore.findAllSessions().forEach((session) => {
+      if (
+        session.tenantID == socket.nsp.name &&
+        "/" + session.userID != socket.nsp.name
+      ) {
+        users.push({
+          tenantID: socket.nsp.name,
+          userID: session.userID,
+          userName: session.userName,
+          connected: session.connected,
+        });
+      }
+    });
+    tenant.emit("user list update", users);
   });
 });

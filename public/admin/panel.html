@@ -15,7 +15,14 @@
     <div class="flex h-screen">
       <div class="md:w-3/12 h-full overflow-y-auto left-side border-r">
         <div class="w-full bg-secondary p-2">
-          <h6 class="font-bold">Chat list</h6>
+          <h6 class="font-bold">
+            {{auth()->user()->latestOrganization->name}}
+          </h6>
+          <!-- to change dynamic admin_id in panel.js   -->
+          <h6 id="predefine_admin_id" class="invisible">
+            {{auth()->user()->latestOrganization->slug}}
+          </h6>
+          <!-- <h6 class="font-bold">Chat list</h6> -->
         </div>
         <div class="w-full p-2">
           <div>

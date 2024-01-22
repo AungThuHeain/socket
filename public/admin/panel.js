@@ -7,6 +7,7 @@ const message_box = document.querySelector(".message_box");
 const user_name = document.querySelector("#user_name");
 const search_input = document.querySelector(".search_input");
 let predefine_admin_id = 12345;
+//let predefine_admin_id = pre_define.textContent;
 
 //user search on admin panel
 function filter() {
