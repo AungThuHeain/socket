@@ -13,7 +13,7 @@
   </head>
   <body>
     <div class="flex h-screen">
-      <div class="md:w-3/12 h-full overflow-y-auto left-side border-r">
+      <div class="md:w-3/12 h-full left-side border-r">
         <div class="w-full bg-secondary p-2">
           <h6 class="font-bold">
             {{auth()->user()->latestOrganization->name}}
@@ -34,7 +34,7 @@
             />
           </div>
         </div>
-        <div class="user-list"></div>
+        <div class="user-list overflow-y-auto"></div>
       </div>
       <div class="md:w-9/12 h-full right-side">
         <div class="w-full bg-secondary p-2">
@@ -59,8 +59,23 @@
           </div>
         </div>
       </div>
+      <script>
+        const search_input = document.querySelector(".search_input");
+        function filter() {
+          const input_value = search_input.value.toLowerCase();
+          const user_list = document.getElementsByClassName("specific_user");
+          for (var i = 0; i <= user_list.length; i++) {
+            var user_name = user_list[i].textContent.toLowerCase();
+            if (user_name.includes(input_value)) {
+              user_list[i].parentElement.style.display = "";
+              user_list[i].style.display = "";
+            } else {
+              user_list[i].parentElement.style.display = "none";
+            }
+          }
+        }
+      </script>
     </div>
-
     <script src="panel.js"></script>
   </body>
 </html>

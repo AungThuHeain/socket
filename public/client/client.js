@@ -20,7 +20,7 @@ const userNameSession = localStorage.getItem("userNameSession");
 let predefine_admin_id = 12345;
 
 //connect to socket server
-// const socket = io("https://socket-ie16.onrender.com/org_id", {
+// const socket = io("https://socket-ie16.onrender.com/"+predefine_admin_id, {
 //   transports: ["websocket"],
 //   auth: {
 //     autoConnect: false,

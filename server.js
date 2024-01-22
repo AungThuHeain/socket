@@ -88,8 +88,6 @@ tenant.on("connection", (socket) => {
   //store session on server side and show when admin initiate
 
   sessionStore.findAllSessions().forEach((session) => {
-    console.log(session.userID);
-    console.log(socket.nsp.name);
     // socket.nsp.nam is socket namespace(organization_slug)
     if (
       session.tenantID == socket.nsp.name &&
@@ -103,8 +101,6 @@ tenant.on("connection", (socket) => {
       });
     }
   });
-
-  //const nameSpace = socket.nsp;
 
   // join the "userID" room
   socket.join(socket.userID);
@@ -151,6 +147,7 @@ tenant.on("connection", (socket) => {
 
   socket.on("user to admin", function (data) {
     const message = {
+      user_name: data.name,
       data: data.msg,
       from: socket.userID,
       to: data.to,

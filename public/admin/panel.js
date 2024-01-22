@@ -5,27 +5,12 @@ const msg = document.querySelector(".msg");
 const send = document.querySelector(".send");
 const message_box = document.querySelector(".message_box");
 const user_name = document.querySelector("#user_name");
-const search_input = document.querySelector(".search_input");
+const pre_define = document.querySelector("#predefine_admin_id");
 let predefine_admin_id = 12345;
 //let predefine_admin_id = pre_define.textContent;
 
-//user search on admin panel
-function filter() {
-  const input_value = search_input.value.toLowerCase();
-  const user_list = document.getElementsByClassName("specific_user");
-  for (var i = 0; i <= user_list.length; i++) {
-    var user_name = user_list[i].textContent.toLowerCase();
-    if (user_name.includes(input_value)) {
-      user_list[i].parentElement.style.display = "";
-      user_list[i].style.display = "";
-    } else {
-      user_list[i].parentElement.style.display = "none";
-    }
-  }
-}
-
 //connect to socket server
-// const socket = io("https://socket-ie16.onrender.com/org_id", {
+// const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
 //   transports: ["websocket"],
 //   autoConnect: true,
 // });
@@ -59,12 +44,11 @@ socket.on("session", ({ sessionID, userID, userName }) => {
 
 //show user list
 socket.on("users", (users) => {
-  console.log(users);
   users.forEach((user) => {
     userList.innerHTML += `<div
               class="d-flex justify-content-between mt-2 mx-2 border-2  rounded ${user.connected}"
             >
-              <h6 id="${user.userID}" class="fw-bold specific_user p-2">${user.userName}</h6>
+              <h6 id="${user.userID}" class="fw-bold specific_user ">${user.userName}</h6>
 
             </div>`;
   });
@@ -77,7 +61,7 @@ socket.on("user list update", (users) => {
     userList.innerHTML += `<div
     class="d-flex justify-content-between mt-2 mx-2 border-2  rounded ${user.connected}"
   >
-    <h6 id="${user.userID}" class="fw-bold specific_user p-2">${user.userName}</h6>
+    <h6 id="${user.userID}" class="fw-bold specific_user ">${user.userName}</h6>
 
   </div>`;
   });
@@ -109,12 +93,17 @@ socket.on("chat history", (messages) => {
   message_box.innerHTML = "";
   messages.forEach((message) => {
     message_box.innerHTML += `
-
-    <div class="p-6 max-w-sm mx-2 bg-white rounded-xl shadow-lg my-2 items-start space-x-4">
+     
+    <div class="p-6 max-w-sm mx-2  rounded-xl shadow-lg my-2 items-start space-x-5 border-2">
+    <div class="flex">
+    <h6 class="text-slate-500 font-bold">${
+      message.user_name == null ? "You" : message.user_name
+    }</h6>
+    </div>
+    
     <p class="text-slate-500">
           ${message.data}
     </p>
-    <h6 class="text-muted text-end">1:6</h6>
    </div>`;
   });
 });
@@ -122,12 +111,17 @@ socket.on("chat history", (messages) => {
 //get self send message to append on chat window
 socket.on("admin to client", (message) => {
   message_box.innerHTML += `
-
-  <div class="p-6 max-w-sm mx-2 bg-white rounded-xl shadow-lg my-2  items-end space-x-4">
+     
+  <div class="p-6 max-w-sm mx-2  rounded-xl shadow-lg my-2 items-start space-x-5 border-2">
+  <div class="flex">
+  <h6 class="text-slate-500 font-bold">${
+    message.user_name == null ? "You" : message.user_name
+  }</h6>
+  </div>
+  
   <p class="text-slate-500">
         ${message.data}
   </p>
-  <h6 class="text-muted text-end">1:6</h6>
  </div>`;
 });
 
@@ -141,12 +135,17 @@ socket.on("user to admin", (message) => {
 
   if (panel) {
     panel.innerHTML += `
-
-    <div class="p-6 max-w-sm mx-2 bg-white rounded-xl shadow-lg my-2 items-start space-x-4">
-     <p class="text-slate-500">
-           ${message.data}
-     </p>
-     <h6 class="text-muted text-end">1:6</h6>
-    </div>`;
+     
+    <div class="p-6 max-w-sm mx-2 rounded-xl shadow-lg my-2 items-start space-x-5 border-2">
+    <div class="flex">
+    <h6 class="text-slate-500 font-bold">${
+      message.user_name == null ? "You" : message.user_name
+    }</h6>
+    </div>
+    
+    <p class="text-slate-500">
+          ${message.data}
+    </p>
+   </div>`;
   }
 });
