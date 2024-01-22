@@ -5,7 +5,23 @@ const msg = document.querySelector(".msg");
 const send = document.querySelector(".send");
 const message_box = document.querySelector(".message_box");
 const user_name = document.querySelector("#user_name");
+const search_input = document.querySelector(".search_input");
 let predefine_admin_id = 12345;
+
+//user search on admin panel
+function filter() {
+  const input_value = search_input.value.toLowerCase();
+  const user_list = document.getElementsByClassName("specific_user");
+  for (var i = 0; i <= user_list.length; i++) {
+    var user_name = user_list[i].textContent.toLowerCase();
+    if (user_name.includes(input_value)) {
+      user_list[i].parentElement.style.display = "";
+      user_list[i].style.display = "";
+    } else {
+      user_list[i].parentElement.style.display = "none";
+    }
+  }
+}
 
 //connect to socket server
 // const socket = io("https://socket-ie16.onrender.com/org_id", {
