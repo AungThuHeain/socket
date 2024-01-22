@@ -82,6 +82,7 @@ tenant.on("connection", (socket) => {
     tenantID: socket.nsp.name,
     userID: socket.userID,
     userName: socket.username,
+    connected: "active",
   });
 
   //store session on server side and show when admin initiate
@@ -93,13 +94,14 @@ tenant.on("connection", (socket) => {
       "/" + session.userID != socket.nsp.name
     ) {
       users.push({
+        connected: session.connected,
         tenantID: socket.nsp.name,
         userID: session.userID,
         userName: session.userName,
       });
     }
   });
-  console.log(users);
+
   //const nameSpace = socket.nsp;
 
   // join the "userID" room
@@ -110,6 +112,28 @@ tenant.on("connection", (socket) => {
     console.log(
       ` '${socket.username}' disconnected from room '${socket.userID}'`
     );
+    sessionStore.saveSession(socket.sessionID, {
+      tenantID: socket.nsp.name,
+      userID: socket.userID,
+      userName: socket.username,
+      connected: "inactive",
+    });
+
+    users.length = 0;
+    sessionStore.findAllSessions().forEach((session) => {
+      if (
+        session.tenantID == socket.nsp.name &&
+        "/" + session.userID != socket.nsp.name
+      ) {
+        users.push({
+          tenantID: socket.nsp.name,
+          userID: session.userID,
+          userName: session.userName,
+          connected: session.connected,
+        });
+      }
+    });
+    tenant.emit("user list update", users);
   });
 
   //////////////////////emit from server ///////////////////////////////////////////
@@ -164,20 +188,21 @@ tenant.on("connection", (socket) => {
   });
 
   socket.on("user list update", () => {
-    const update_users = [];
+    users.length = 0;
     sessionStore.findAllSessions().forEach((session) => {
       if (
         session.tenantID == socket.nsp.name &&
         "/" + session.userID != socket.nsp.name
       ) {
-        update_users.push({
+        users.push({
           tenantID: socket.nsp.name,
           userID: session.userID,
           userName: session.userName,
+          connected: session.connected,
         });
       }
     });
-    socket.emit("user list update", update_users);
+    socket.emit("user list update", users);
   });
 
   //handle typing

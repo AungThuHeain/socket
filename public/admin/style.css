@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.active {
+  border-left-color: rgb(32, 143, 14);
+  border-radius: theme("borderRadius.lg");
+  border-inline-start-color: rgb(132 204 22);
+  padding: 15px;
+  box-shadow: theme("boxShadow.xl");
+}
+.inactive {
+  border-left-color: rgb(232, 39, 9);
+  border-radius: theme("borderRadius.lg");
+  border-inline-start-color: rgb(232, 39, 9);
+  padding: 15px;
+  box-shadow: theme("boxShadow.xl");
+}
+/* ... */
+.message_box {
+  height: 600px;
+}

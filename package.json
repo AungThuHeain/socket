@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon .",
-    "watch": "npx tailwindcss -i ./public/admin/style.css -o ./public/admin/output.css --watch"
+    "watch": "npx tailwindcss -i public/admin/style.css -o public/admin/output.css --watch"
   },
   "author": "",
   "license": "ISC",

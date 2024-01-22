@@ -45,7 +45,7 @@ socket.on("users", (users) => {
   console.log(users);
   users.forEach((user) => {
     userList.innerHTML += `<div
-              class="d-flex justify-content-between mt-2 mr-2  bg-blue-500 rounded "
+              class="d-flex justify-content-between mt-2 mx-2 border-2  rounded ${user.connected}"
             >
               <h6 id="${user.userID}" class="fw-bold specific_user p-2">${user.userName}</h6>
 
@@ -54,15 +54,15 @@ socket.on("users", (users) => {
 });
 
 //show update user list
-socket.on("user list update", (update_users) => {
+socket.on("user list update", (users) => {
   userList.innerHTML = "";
-  update_users.forEach((user) => {
+  users.forEach((user) => {
     userList.innerHTML += `<div
-        class="d-flex justify-content-between mt-2 mr-2  bg-blue-500 rounded "
-      >
-        <h6 id="${user.userID}" class="fw-bold specific_user p-2">${user.userName}</h6>
+    class="d-flex justify-content-between mt-2 mx-2 border-2  rounded ${user.connected}"
+  >
+    <h6 id="${user.userID}" class="fw-bold specific_user p-2">${user.userName}</h6>
 
-      </div>`;
+  </div>`;
   });
 });
 

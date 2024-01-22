@@ -32,7 +32,6 @@ const socket = io("http://localhost:4000/" + predefine_admin_id, {
 
 //check first session
 if (sessionID) {
-  alert(sessionID);
   socket.connect();
   socket.emit("get old message");
   userName.style.display = "none";
