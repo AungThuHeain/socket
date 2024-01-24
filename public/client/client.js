@@ -20,15 +20,15 @@ const userNameSession = localStorage.getItem("userNameSession");
 let predefine_admin_id = 12345;
 
 //connect to socket server
-// const socket = io("https://socket-ie16.onrender.com/"+predefine_admin_id, {
-//   transports: ["websocket"],
-//   auth: {
-//     autoConnect: false,
-//   },
-// });
-const socket = io("http://localhost:4000/" + predefine_admin_id, {
-  autoConnect: false,
+const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
+  transports: ["websocket"],
+  auth: {
+    autoConnect: false,
+  },
 });
+// const socket = io("http://localhost:4000/" + predefine_admin_id, {
+//   autoConnect: false,
+// });
 
 //check first session
 if (sessionID) {

@@ -10,14 +10,14 @@ let predefine_admin_id = 12345;
 //let predefine_admin_id = pre_define.textContent;
 
 //connect to socket server
-// const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
-//   transports: ["websocket"],
-//   autoConnect: true,
-// });
-
-const socket = io("http://localhost:4000/" + predefine_admin_id, {
+const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
+  transports: ["websocket"],
   autoConnect: true,
 });
+
+// const socket = io("http://localhost:4000/" + predefine_admin_id, {
+//   autoConnect: true,
+// });
 
 if (sessionID) {
   socket.auth = {
