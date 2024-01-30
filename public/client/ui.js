@@ -143,17 +143,17 @@ setTimeout(function () {
         console.log("Response from API:", response.data);
   });
 
-  //show old message when old user reconnect
-  socket.on("get old message", (messages) => {
-      messages.forEach((message) => {
-          chat.innerHTML += `<p><span class="text-primary">${message.user_name ?? 'Admin'}:  </span>${message.data}</p>`;
-      });
-  });
-  //accept private message
-  socket.on("user to admin", (message) => {
-        console.log("message",message)
-      chat.innerHTML += `<p><span class="text-primary">${message.user_name}:  </span>${message.data}</p>`;
-  });
+    //show old message when old user reconnect
+    socket.on("get old message", (messages) => {
+        messages.forEach((message) => {
+            chat.innerHTML += `<p><span class="text-primary">${message.user_name ?? 'Admin'}:  </span>${message.data}</p>`;
+        });
+    });
+    //accept private message
+    socket.on("user to admin", (message) => {
+            console.log("message",message)
+        chat.innerHTML += `<p><span class="text-primary">${message.user_name}:  </span>${message.data}</p>`;
+    });
 
   //accept private message
   socket.on("admin to client", (message) => {
