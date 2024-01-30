@@ -103,7 +103,7 @@ tenant.on("connection", (socket) => {
   });
 
   // join the "userID" room
-  socket.join(socket.userID);
+  socket.join(socket.sessionID);
 
   //////////////////////emit from server ///////////////////////////////////////////
 
