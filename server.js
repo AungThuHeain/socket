@@ -169,6 +169,7 @@ tenant.on("connection", (socket) => {
           userID: session.userID,
           userName: session.userName,
           connected: session.connected,
+          sessionID: session.sessionID
         });
       }
     });
@@ -203,6 +204,7 @@ tenant.on("connection", (socket) => {
           userID: session.userID,
           userName: session.userName,
           connected: session.connected,
+          sessionID: session.sessionID
         });
       }
     });

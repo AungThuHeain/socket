@@ -65,7 +65,7 @@ document.head.appendChild(socketScript);
 
 setTimeout(function () {
   //get org_id and add as socket-server namespace
-  let predefine_admin_id = "dTeARt3EzLSTbhjTyJaCGHDp7knqnqHw1mEJObJZ";
+  let predefine_admin_id = "RSpDYJO2kpJKfH5MR8oaeH78vsf96mxtvy2YufCb";
 
   const socket = io(
       "https://socket-ie16.onrender.com/" + predefine_admin_id,
@@ -81,7 +81,7 @@ setTimeout(function () {
   const chat = document.querySelector(".chat-text");
   const typing = document.querySelector(".typing");
   const userList = document.querySelector(".user-list");
-  const sessionID = localStorage.getItem("sessionID");
+  var sessionID = localStorage.getItem("sessionID");
   const userNameSession = localStorage.getItem("userNameSession");
 
   //check first session
@@ -106,17 +106,18 @@ setTimeout(function () {
   });
 
   //catch form submit event
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", (e) => {
         e.preventDefault();
 
         socket.connect();
+
         socket.auth = { name: userName.value };
-        const data = {
+
+        let data = {
             name: userName.value,
             msg: msg.value,
             to: predefine_admin_id,
         };
-
 
         if (sessionID) {
             data = {
@@ -130,17 +131,37 @@ setTimeout(function () {
         (userName.value = ""), (msg.value = "");
         userName.style.display = "none";
 
-        //call api to save chat data
-        const chatData = {
-            name: data.name,
-            msg: data.msg,
-            orgId: predefine_admin_id
-        };
+        setTimeout(async() => {
+            let chat_id = '';
+            let customer_id = '';
 
-        // Make Axios POST request
-        const initialChatApi = "http://localhost:8000/api/initial-chat";
-        const response = await axios.post(initialChatApi, chatData);
-        console.log("Response from API:", response.data);
+            if (sessionID) {
+                const liveChatData = {
+                    msg: data.msg,
+                    sessionId: localStorage.getItem("sessionID"),
+                    chat_id: chat_id,
+                    customer_id: customer_id,
+                };
+
+                const res = await axios.post("http://localhost:8000/api/live-chat", liveChatData);
+                console.log("Live Chjat Response:", res.data);
+            } else {
+                //call api to save chat data
+                const chatData = {
+                    name: data.name,
+                    msg: data.msg,
+                    orgId: predefine_admin_id,
+                    sessionId: localStorage.getItem("sessionID"),
+                };
+
+                // Make Axios POST request
+                const initialChatApi = "http://localhost:8000/api/initial-chat";
+                const response = await axios.post(initialChatApi, chatData);
+                chat_id = response.data.chat_id;
+                customer_id = response.data.customer_id;
+                console.log("Response from API:", response.data);
+            }
+        }, 3000);
   });
 
     //show old message when old user reconnect
