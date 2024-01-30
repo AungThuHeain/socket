@@ -86,7 +86,7 @@ tenant.on("connection", (socket) => {
   });
 
   //store session on server side and show when admin initiate
-
+  console.log(sessionStore.findAllSessions());
   sessionStore.findAllSessions().forEach((session) => {
     // socket.nsp.nam is socket namespace(organization_slug)
     if (
