@@ -116,13 +116,17 @@ setTimeout(function () {
             to: predefine_admin_id,
         };
 
-        if (localStorage.getItem("sessionID")) {
+        if (sessionID) {
             data = {
                 name: userNameSession,
                 msg: msg.value,
                 to: predefine_admin_id,
             };
+        }
 
+        socket.emit("user to admin", data);
+
+        if (localStorage.getItem("sessionID")) {
             setTimeout(async () => {
                 const liveChatData = {
                     msg: data.msg,
@@ -149,7 +153,6 @@ setTimeout(function () {
             }, 3000);
         }
 
-        socket.emit("user to admin", data);
         (userName.value = ""), (msg.value = "");
         userName.style.display = "none";
     });
