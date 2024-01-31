@@ -2,12 +2,12 @@ document.addEventListener("DOMContentLoaded", function () {
     // Create main elements
     const button = document.createElement("button");
     const divPopup = document.createElement("div");
-  
+
     // Set attributes and content for the elements
     button.setAttribute("class", "open-button");
     button.setAttribute("onclick", "openForm()");
     button.innerHTML = '<img src="./img/chat_ico.png" alt="Chat Box Image" width="50" >'; // Add the path to your chat box image
-  
+
     divPopup.setAttribute("class", "chat-popup");
     divPopup.setAttribute("id", "myForm");
     divPopup.innerHTML = `<div class="user-list"></div>
@@ -20,9 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     <img src="./img/close_ico.jpeg" alt="Close" width="20" >
     </button>
     </div>
-    <div class="chat-text">
-    <p></p></div>
-    <p class="typing"></p>
+    <div class="chat-text"></div>
     <div class="flex mb-10">
     <input type="text" id="name" class="mb-10" placeholder="Type name.." name="name" />
     <input type="hidden" name="orgId" value="dTeARt3EzLSTbhjTyJaCGHDp7knqnqHw1mEJObJZ" />
@@ -34,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
     </div>
     <p class="footer-txt">Powered by 360TimeSheet</p>
     </form>`;
-  
+
     // Append elements to the document
     document.body.appendChild(button);
     document.body.appendChild(divPopup);
@@ -49,68 +47,67 @@ document.head.appendChild(link);
 //add script cdn for axio
 const axioScript = document.createElement("script");
 axioScript.setAttribute(
-  "src",
-  "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.6/axios.min.js"
+    "src",
+    "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.6/axios.min.js"
 );
 document.head.appendChild(axioScript);
 
 //connect to socket server
 const socketScript = document.createElement("script");
 socketScript.setAttribute(
-  "src",
-  "https://cdn.socket.io/4.7.2/socket.io.min.js"
+    "src",
+    "https://cdn.socket.io/4.7.2/socket.io.min.js"
 );
 document.head.appendChild(socketScript);
 
 
 setTimeout(function () {
-  //get org_id and add as socket-server namespace
-  let predefine_admin_id = "RSpDYJO2kpJKfH5MR8oaeH78vsf96mxtvy2YufCb";
+    //get dom
+    const form = document.querySelector("form");
+    const userName = document.querySelector("#name");
+    const msg = document.querySelector("#msg");
+    const chat = document.querySelector(".chat-text");
+    const typing = document.querySelector(".typing");
+    const userList = document.querySelector(".user-list");
+    var sessionID = localStorage.getItem("sessionID");
+    const userNameSession = localStorage.getItem("userNameSession");
 
-  const socket = io(
-      "https://socket-ie16.onrender.com/" + predefine_admin_id,
-      {
-          transports: ["websocket"],
-          autoConnect: false,
-      }
-  );
-  //get dom
-  const form = document.querySelector("form");
-  const userName = document.querySelector("#name");
-  const msg = document.querySelector("#msg");
-  const chat = document.querySelector(".chat-text");
-  const typing = document.querySelector(".typing");
-  const userList = document.querySelector(".user-list");
-  var sessionID = localStorage.getItem("sessionID");
-  const userNameSession = localStorage.getItem("userNameSession");
+    //get org_id and add as socket-server namespace
+    let predefine_admin_id = "NRlo0oyhvTobHvuJSPAjgDKE8u3NaTNFsddj62pl";
 
-  //check first session
-  if (sessionID) {
-      socket.connect();
-      socket.emit("get old message");
-      userName.style.display = "none";
-      socket.auth = { sessionID: sessionID, name: userNameSession };
-  }
+    const socket = io(
+        "https://socket-ie16.onrender.com/" + predefine_admin_id,
+        {
+            transports: ["websocket"],
+            autoConnect: false,
+        }
+    );
 
-  //handle session data
-  socket.on("session", ({ sessionID, userID, userName }) => {
-      // attach the session ID to the next reconnection attempts
-      //
-      socket.auth = { sessionID: sessionID };
-
-      // store it in the localStorage
-      localStorage.setItem("sessionID", sessionID);
-      localStorage.setItem("userNameSession", userName);
-      // save the ID of the user
-      socket.userID = userID;
-  });
-
-  //catch form submit event
-  form.addEventListener("submit", (e) => {
-        e.preventDefault();
-
+    //check first session
+    if (sessionID) {
         socket.connect();
+        socket.emit("get old message");
+        userName.style.display = "none";
+        socket.auth = { sessionID: sessionID, name: userNameSession };
+    }
 
+    //handle session data
+    socket.on("session", ({ sessionID, userID, userName }) => {
+        // attach the session ID to the next reconnection attempts
+        //
+        socket.auth = { sessionID: sessionID };
+
+        // store it in the localStorage
+        localStorage.setItem("sessionID", sessionID);
+        localStorage.setItem("userNameSession", userName);
+        // save the ID of the user
+        socket.userID = userID;
+    });
+
+    //catch form submit event
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        socket.connect();
         socket.auth = { name: userName.value };
 
         let data = {
@@ -119,74 +116,68 @@ setTimeout(function () {
             to: predefine_admin_id,
         };
 
-        if (sessionID) {
+        if (localStorage.getItem("sessionID")) {
             data = {
                 name: userNameSession,
                 msg: msg.value,
                 to: predefine_admin_id,
             };
-        }
 
-        socket.emit("user to admin", data);
-        (userName.value = ""), (msg.value = "");
-        userName.style.display = "none";
-
-        setTimeout(async() => {
-            let chat_id = '';
-            let customer_id = '';
-
-            if (sessionID) {
+            setTimeout(async () => {
                 const liveChatData = {
                     msg: data.msg,
-                    sessionId: localStorage.getItem("sessionID"),
-                    chat_id: chat_id,
-                    customer_id: customer_id,
+                    room_id: socket.userID,
+                    user_id: null,
                 };
 
                 const res = await axios.post("http://localhost:8000/api/live-chat", liveChatData);
                 console.log("Live Chjat Response:", res.data);
-            } else {
+            }, 3000);
+        } else {
+            setTimeout(async () => {
                 //call api to save chat data
                 const chatData = {
                     name: data.name,
                     msg: data.msg,
                     orgId: predefine_admin_id,
-                    sessionId: localStorage.getItem("sessionID"),
+                    room_id: socket.userID,
                 };
 
-                // Make Axios POST request
                 const initialChatApi = "http://localhost:8000/api/initial-chat";
                 const response = await axios.post(initialChatApi, chatData);
-                chat_id = response.data.chat_id;
-                customer_id = response.data.customer_id;
                 console.log("Response from API:", response.data);
-            }
-        }, 3000);
-  });
+            }, 3000);
+        }
+
+        socket.emit("user to admin", data);
+        (userName.value = ""), (msg.value = "");
+        userName.style.display = "none";
+    });
 
     //show old message when old user reconnect
     socket.on("get old message", (messages) => {
+        console.log("get old messgae")
         messages.forEach((message) => {
             chat.innerHTML += `<p><span class="text-primary">${message.user_name ?? 'Admin'}:  </span>${message.data}</p>`;
         });
     });
     //accept private message
     socket.on("user to admin", (message) => {
-            console.log("message",message)
+        console.log("get old messgae")
         chat.innerHTML += `<p><span class="text-primary">${message.user_name}:  </span>${message.data}</p>`;
     });
 
-  //accept private message
-  socket.on("admin to client", (message) => {
-      chat.innerHTML += `<p><span class="text-primary">Admin:  </span>${message.data}</p>`;
-  });
+    //accept private message
+    socket.on("admin to client", (message) => {
+        chat.innerHTML += `<p><span class="text-primary">Admin:  </span>${message.data}</p>`;
+    });
 }, 3000);
 
 //to close and open form
 function openForm() {
-  document.getElementById("myForm").style.display = "block";
+    document.getElementById("myForm").style.display = "block";
 }
 
 function closeForm() {
-  document.getElementById("myForm").style.display = "none";
+    document.getElementById("myForm").style.display = "none";
 }

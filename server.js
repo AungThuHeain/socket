@@ -154,7 +154,7 @@ tenant.on("connection", (socket) => {
       to: data.to,
     };
     tenant.to(data.to).to(socket.userID).emit("user to admin", message);
-
+    console.log("server")
     messageStore.saveMessage(message);
   });
 
