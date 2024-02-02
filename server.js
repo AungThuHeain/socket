@@ -86,9 +86,14 @@ tenant.on("connection", (socket) => {
   });
 
   //store session on server side and show when admin initiate
-  console.log(sessionStore.findAllSessions());
+
   sessionStore.findAllSessions().forEach((session) => {
     // socket.nsp.nam is socket namespace(organization_slug)
+    console.log({
+      " tenant_id": session.tenantID,
+      " user_id": session.userID,
+      "socket.nsp.name": socket.nsp.name,
+    });
     if (
       session.tenantID == socket.nsp.name &&
       "/" + session.userID != socket.nsp.name
@@ -103,6 +108,7 @@ tenant.on("connection", (socket) => {
     }
   });
 
+  console.log(users);
   // join the "userID" room
   socket.join(socket.userID);
 
@@ -169,7 +175,7 @@ tenant.on("connection", (socket) => {
           userID: session.userID,
           userName: session.userName,
           connected: session.connected,
-          sessionID: socket.sessionID
+          sessionID: socket.sessionID,
         });
       }
     });
@@ -204,7 +210,7 @@ tenant.on("connection", (socket) => {
           userID: session.userID,
           userName: session.userName,
           connected: session.connected,
-          sessionID: socket.sessionID
+          sessionID: socket.sessionID,
         });
       }
     });
