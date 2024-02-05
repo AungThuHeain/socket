@@ -89,11 +89,7 @@ tenant.on("connection", (socket) => {
 
   sessionStore.findAllSessions().forEach((session) => {
     // socket.nsp.nam is socket namespace(organization_slug)
-    console.log({
-      " tenant_id": session.tenantID,
-      " user_id": session.userID,
-      "socket.nsp.name": socket.nsp.name,
-    });
+
     if (
       session.tenantID == socket.nsp.name &&
       "/" + session.userID != socket.nsp.name
@@ -149,6 +145,7 @@ tenant.on("connection", (socket) => {
   ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
   socket.on("get old message", () => {
     const messages = messageStore.findMessagesForUser(socket.userID);
+    console.log(messages);
     //emit to user to show old message on chat widget
     socket.emit("get old message", messages);
   });
