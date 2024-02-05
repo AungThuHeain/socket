@@ -139,6 +139,7 @@ tenant.on("connection", (socket) => {
       data: data.msg,
       from: socket.userID,
       to: to,
+      time: new Date(),
     };
     //emit to user and admin to append new message on chat window
     tenant.to(to).to(socket.userID).emit("admin to client", message);
@@ -158,6 +159,7 @@ tenant.on("connection", (socket) => {
       data: data.msg,
       from: socket.userID,
       to: data.to,
+      time: new Date(),
     };
     tenant.to(data.to).to(socket.userID).emit("user to admin", message);
     messageStore.saveMessage(message);
