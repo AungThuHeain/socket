@@ -1,26 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-
-    // add style for widget
-var link = document.createElement('link');
-link.rel = 'stylesheet';
-link.href = 'style.css';
-document.head.appendChild(link);
-
-//add script cdn for axio
-const axioScript = document.createElement("script");
-axioScript.setAttribute(
-    "src",
-    "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.6/axios.min.js"
-);
-document.head.appendChild(axioScript);
-
-//connect to socket server
-const socketScript = document.createElement("script");
-socketScript.setAttribute(
-    "src",
-    "https://cdn.socket.io/4.7.2/socket.io.min.js"
-);
-document.head.appendChild(socketScript);
     // Create main elements
     const button = document.createElement("button");
     const divPopup = document.createElement("div");
@@ -58,127 +36,146 @@ document.head.appendChild(socketScript);
     // Append elements to the document
     document.body.appendChild(button);
     document.body.appendChild(divPopup);
+});
 
-    setTimeout(() => {
-    // setTimeout(function () {
-        //get dom
-        const form = document.querySelector("form");
-        const userName = document.querySelector("#name");
-        const msg = document.querySelector("#msg");
-        const chat = document.querySelector(".chat-text");
-        const typing = document.querySelector(".typing");
-        const userList = document.querySelector(".user-list");
-        var sessionID = localStorage.getItem("sessionID");
-        const userNameSession = localStorage.getItem("userNameSession");
-    
-        //get org_id and add as socket-server namespace
-        var predefine_admin_id = "NRlo0oyhvTobHvuJSPAjgDKE8u3NaTNFsddj62pl";
-    
-        const socket = io(
-            "https://socket-ie16.onrender.com/" + predefine_admin_id,
-            {
-                transports: ["websocket"],
-                autoConnect: false,
-            }
-        );
-    
-        //check first session
-        if (sessionID) {
-            socket.connect();
-            socket.emit("get old message");
-            userName.style.display = "none";
-            socket.auth = { sessionID: sessionID, name: userNameSession };
+// add style for widget
+var link = document.createElement('link');
+link.rel = 'stylesheet';
+link.href = 'style.css';
+document.head.appendChild(link);
+
+//add script cdn for axio
+const axioScript = document.createElement("script");
+axioScript.setAttribute(
+    "src",
+    "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.6/axios.min.js"
+);
+document.head.appendChild(axioScript);
+
+//connect to socket server
+const socketScript = document.createElement("script");
+socketScript.setAttribute(
+    "src",
+    "https://cdn.socket.io/4.7.2/socket.io.min.js"
+);
+document.head.appendChild(socketScript);
+
+
+setTimeout(function () {
+    //get dom
+    const form = document.querySelector("form");
+    const userName = document.querySelector("#name");
+    const msg = document.querySelector("#msg");
+    const chat = document.querySelector(".chat-text");
+    const typing = document.querySelector(".typing");
+    const userList = document.querySelector(".user-list");
+    var sessionID = localStorage.getItem("sessionID");
+    const userNameSession = localStorage.getItem("userNameSession");
+
+    //get org_id and add as socket-server namespace
+    let predefine_admin_id = "NRlo0oyhvTobHvuJSPAjgDKE8u3NaTNFsddj62pl";
+
+    const socket = io(
+        "https://socket-ie16.onrender.com/" + predefine_admin_id,
+        {
+            transports: ["websocket"],
+            autoConnect: false,
         }
-    
-        //handle session data
-        socket.on("session", ({ sessionID, userID, userName }) => {
-            // attach the session ID to the next reconnection attempts
-            //
-            socket.auth = { sessionID: sessionID };
-    
-            // store it in the localStorage
-            localStorage.setItem("sessionID", sessionID);
-            localStorage.setItem("userNameSession", userName);
-            // save the ID of the user
-            socket.userID = userID;
-        });
-    
-        //catch form submit event
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            socket.connect();
-            socket.auth = { name: userName.value };
-            console.log("form_submit", socket.userID)
-            var data = {
-                name: userName.value,
+    );
+
+    //check first session
+    if (sessionID) {
+        socket.connect();
+        socket.emit("get old message");
+        userName.style.display = "none";
+        socket.auth = { sessionID: sessionID, name: userNameSession };
+    }
+
+    //handle session data
+    socket.on("session", ({ sessionID, userID, userName }) => {
+        // attach the session ID to the next reconnection attempts
+        //
+        socket.auth = { sessionID: sessionID };
+
+        // store it in the localStorage
+        localStorage.setItem("sessionID", sessionID);
+        localStorage.setItem("userNameSession", userName);
+        // save the ID of the user
+        socket.userID = userID;
+    });
+
+    //catch form submit event
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        socket.connect();
+        socket.auth = { name: userName.value };
+
+        let data = {
+            name: userName.value,
+            msg: msg.value,
+            to: predefine_admin_id,
+        };
+
+
+        if (localStorage.getItem("sessionID")) {
+            data = {
+                name: userNameSession,
                 msg: msg.value,
                 to: predefine_admin_id,
             };
-    
-    
-            if (sessionID) {
-                data = {
-                    name: userNameSession,
-                    msg: msg.value,
-                    to: predefine_admin_id,
+
+            setTimeout(async () => {
+                const liveChatData = {
+                    msg: data.msg,
+                    room_id: socket.userID,
+                    user_id: null,
                 };
-    
-                socket.emit("user to admin", data);
 
-                setTimeout(async () => {
-                    const liveChatData = {
-                        msg: data.msg,
-                        room_id: socket.userID,
-                        user_id: null,
-                    };
-    
-                    const res = await axios.post("http://localhost:8000/api/live-chat", liveChatData);
-                    console.log("Live Chjat Response:", res.data);
-                }, 3000);
-            } else {
-                socket.emit("user to admin", data);
-                setTimeout(async () => {
-                    //call api to save chat data
-                    const chatData = {
-                        name: data.name,
-                        msg: data.msg,
-                        orgId: predefine_admin_id,
-                        room_id: socket.userID,
-                    };
-    
-                    const initialChatApi = "http://localhost:8000/api/initial-chat";
-                    const response = await axios.post(initialChatApi, chatData);
-                    console.log("Response from API:", response.data);
-                }, 3000);
-            }
-    
-            (userName.value = ""), (msg.value = "");
-            userName.style.display = "none";
-        });
+                const res = await axios.post("http://localhost:8000/api/live-chat", liveChatData);
+                console.log("Live Chjat Response:", res.data);
+            }, 1000);
 
-                   //show old message when old user reconnect
+        } else {
+            setTimeout(async () => {
+                //call api to save chat data
+                const chatData = {
+                    name: data.name,
+                    msg: data.msg,
+                    orgId: predefine_admin_id,
+                    room_id: socket.userID,
+                };
+
+                const initialChatApi = "http://localhost:8000/api/initial-chat";
+                const response = await axios.post(initialChatApi, chatData);
+                console.log("Response from API:", response.data);
+            }, 1000);
+        }
+
+        socket.emit("user to admin", data);
+        (userName.value = ""), (msg.value = "");
+        userName.style.display = "none";
+    });
+
+
+    //show old message when old user reconnect
     socket.on("get old message", (messages) => {
-        console.log("get old messgae", messages)
+        console.log("get old messgae")
         messages.forEach((message) => {
             chat.innerHTML += `<p><span class="text-primary">${message.user_name ?? 'Admin'}:  </span>${message.data}</p>`;
         });
     });
+
     //accept private message
     socket.on("user to admin", (message) => {
-        console.log("user to admin")
         chat.innerHTML += `<p><span class="text-primary">${message.user_name}:  </span>${message.data}</p>`;
     });
 
     //accept private message
     socket.on("admin to client", (message) => {
+        console.log("admin to client")
         chat.innerHTML += `<p><span class="text-primary">Admin:  </span>${message.data}</p>`;
     });
-    // }, 1000);
-    }, 2000);
- 
-});
-
-
+}, 1000);
 
 //to close and open form
 function openForm() {
