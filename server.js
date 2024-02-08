@@ -104,7 +104,7 @@ tenant.on("connection", (socket) => {
     }
   });
 
-  console.log("all users", users);
+  console.log(users);
   // join the "userID" room
   socket.join(socket.userID);
 
