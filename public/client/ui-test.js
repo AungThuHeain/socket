@@ -157,8 +157,6 @@ setTimeout(function () {
     });
 }, 1000);
 
-
-
 //to close and open form
 function openForm() {
     document.getElementById("myForm").style.display = "block";
