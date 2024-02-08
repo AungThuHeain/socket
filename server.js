@@ -104,7 +104,7 @@ tenant.on("connection", (socket) => {
     }
   });
 
-  console.log(users);
+  console.log("all users", users);
   // join the "userID" room
   socket.join(socket.userID);
 
@@ -145,7 +145,7 @@ tenant.on("connection", (socket) => {
   ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
   socket.on("get old message", () => {
     const messages = messageStore.findMessagesForUser(socket.userID);
-    console.log(messages);
+
     //emit to user to show old message on chat widget
     socket.emit("get old message", messages);
   });
