@@ -215,4 +215,11 @@ tenant.on("connection", (socket) => {
     });
     tenant.emit("user list update", users);
   });
+
+  //file upload
+  socket.on("upload", (data) => {
+    console.log("sendImage", data);
+    console.log("socket.userID", socket.userID);
+    tenant.to(data.to).to(socket.userID).emit("emit image", data);
+  });
 });

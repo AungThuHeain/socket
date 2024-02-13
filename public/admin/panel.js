@@ -3,21 +3,22 @@ const userNameSession = localStorage.getItem("userNameSession");
 const userList = document.querySelector(".user-list");
 const msg = document.querySelector(".msg");
 const send = document.querySelector(".send");
+const sendImage = document.querySelector(".sendImage");
 const message_box = document.querySelector(".message_box");
 const user_name = document.querySelector("#user_name");
 const pre_define = document.querySelector("#predefine_admin_id");
-let predefine_admin_id = 12345;
+let predefine_admin_id = "12345";
 //let predefine_admin_id = pre_define.textContent;
 
 //connect to socket server
-const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
-  transports: ["websocket"],
-  autoConnect: true,
-});
-
-// const socket = io("http://localhost:4000/" + predefine_admin_id, {
+// const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
+//   transports: ["websocket"],
 //   autoConnect: true,
 // });
+
+const socket = io("http://localhost:4000/" + predefine_admin_id, {
+  autoConnect: true,
+});
 
 if (sessionID) {
   socket.auth = {
@@ -71,6 +72,7 @@ socket.on("user list update", (users) => {
 userList.addEventListener("click", (e) => {
   if (e.target.classList.contains("specific_user")) {
     send.setAttribute("id", e.target.id);
+    sendImage.setAttribute("id", e.target.id);
     message_box.setAttribute("id", "id" + e.target.id);
     user_name.innerHTML = e.target.textContent;
   }
@@ -149,3 +151,46 @@ socket.on("user to admin", (message) => {
    </div>`;
   }
 });
+
+socket.on("emit image", (data) => {
+  alert("emit received by admin");
+  socket.emit("user list update");
+  const panel_id = "#id" + data.panel;
+  const panel = document.querySelector(panel_id);
+
+  const blob = new Blob([data.file], { type: data.mime });
+  const imageUrl = URL.createObjectURL(blob);
+  console.log(imageUrl);
+  if (panel) {
+    panel.innerHTML += `
+     
+    <div class="p-6 max-w-sm mx-2 rounded-xl shadow-lg my-2 items-start space-x-5 border-2">
+    <div class="flex">
+    <h6 class="text-slate-500 font-bold">${
+      data.userName == null ? "You" : data.userName
+    }</h6>
+    </div>
+    
+    <div>
+        <img src=" ${imageUrl}">
+    </div>
+   </div>`;
+  } else {
+    console.log("no panel found");
+  }
+});
+
+function upload(files, id) {
+  const file = files[0];
+  const mime = file.type;
+  const name = file.name;
+  const from = socket.userID;
+  const userName = "Admin";
+  const panel = id;
+  const to = id;
+  const data = { file, mime, name, to, from, userName, panel };
+
+  socket.emit("upload", data, (status) => {
+    console.log(status);
+  });
+}

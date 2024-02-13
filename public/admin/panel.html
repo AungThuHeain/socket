@@ -26,6 +26,9 @@
         </div>
         <div class="w-full p-2">
           <div>
+            <img src="" alt="" id="myImage" />
+          </div>
+          <div>
             <input
               oninput="filter()"
               type="text"
@@ -58,6 +61,11 @@
             </button>
           </div>
         </div>
+        <input
+          type="file"
+          onchange="upload(this.files,this.id)"
+          class="sendImage"
+        />
       </div>
       <script>
         const search_input = document.querySelector(".search_input");

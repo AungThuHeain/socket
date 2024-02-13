@@ -17,18 +17,18 @@ const userList = document.querySelector(".user-list");
 const sessionID = localStorage.getItem("sessionID");
 const userNameSession = localStorage.getItem("userNameSession");
 
-let predefine_admin_id = 12345;
+let predefine_admin_id = "12345";
 
 //connect to socket server
-const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
-  transports: ["websocket"],
-  auth: {
-    autoConnect: false,
-  },
-});
-// const socket = io("http://localhost:4000/" + predefine_admin_id, {
-//   autoConnect: false,
+// const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
+//   transports: ["websocket"],
+//   auth: {
+//     autoConnect: false,
+//   },
 // });
+const socket = io("http://localhost:4000/" + predefine_admin_id, {
+  autoConnect: false,
+});
 
 //check first session
 if (sessionID) {
@@ -122,3 +122,28 @@ socket.on("admin to client", (message) => {
   chat.innerHTML += `<p>${message.data}</p>`;
   typing.innerHTML = "";
 });
+
+socket.on("emit image", (data) => {
+  socket.emit("user list update");
+  const blob = new Blob([data.file], { type: data.mime });
+  const imageUrl = URL.createObjectURL(blob);
+  chat.innerHTML += `
+    <div>
+        <img src=" ${imageUrl}">
+    </div>
+   `;
+});
+
+function upload(files) {
+  const file = files[0];
+  const mime = file.type;
+  const name = file.name;
+  const from = socket.userID;
+  const panel = socket.userID;
+  const to = predefine_admin_id;
+  const userName = userNameSession;
+  const data = { file, mime, name, to, from, userName, panel };
+  socket.emit("upload", data, (status) => {
+    console.log(status);
+  });
+}
