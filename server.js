@@ -28,6 +28,7 @@ const server = app.listen("4000", () => {
 
 /**create socket */
 const io = socket(server, {
+  maxHttpBufferSize: 2e8,
   cors: {
     origins: "*",
   },
@@ -219,7 +220,6 @@ tenant.on("connection", (socket) => {
   //file upload
   socket.on("upload", (data) => {
     console.log("sendImage", data);
-    console.log("socket.userID", socket.userID);
     tenant.to(data.to).to(socket.userID).emit("emit image", data);
   });
 });

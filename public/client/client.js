@@ -28,6 +28,8 @@ let predefine_admin_id = "12345";
 // });
 const socket = io("http://localhost:4000/" + predefine_admin_id, {
   autoConnect: false,
+  transports: ["websocket"],
+  maxHttpBufferSize: 2e8,
 });
 
 //check first session
@@ -126,25 +128,38 @@ socket.on("admin to client", (message) => {
 socket.on("emit image", (data) => {
   document.querySelector(".sendImage").value = "";
   socket.emit("user list update");
-  const blob = new Blob([data.file], { type: data.mime });
-  const imageUrl = URL.createObjectURL(blob);
+
   chat.innerHTML += `
     <div>
-        <img src=" ${imageUrl}">
+        <img src=" ${data.url}">
     </div>
    `;
 });
 
 function upload(files) {
-  const file = files[0];
-  const mime = file.type;
-  const name = file.name;
-  const from = socket.userID;
-  const panel = socket.userID;
-  const to = predefine_admin_id;
-  const userName = userNameSession;
-  const data = { file, mime, name, to, from, userName, panel };
-  socket.emit("upload", data, (status) => {
-    console.log(status);
-  });
+  // const blob = new Blob([files[0]], { type: files[0].type });
+  // const imageUrl = URL.createObjectURL(blob);
+
+  const reader = new FileReader();
+
+  reader.readAsDataURL(files[0]);
+
+  reader.onload = function (event) {
+    imageUrl = event.target.result;
+    console.log("Data URL:", imageUrl);
+
+    const data = {
+      url: imageUrl,
+      to: predefine_admin_id,
+      from: socket.userID,
+      userName: userNameSession,
+      panel: socket.userID,
+    };
+    socket.emit("upload", data, (status) => {
+      console.log(status);
+    });
+  };
+  reader.onerror = function (event) {
+    console.error("Image upload error", event.target.error);
+  };
 }
