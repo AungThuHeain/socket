@@ -219,7 +219,17 @@ tenant.on("connection", (socket) => {
 
   //file upload
   socket.on("upload", (data) => {
-    console.log("sendImage", data);
+    console.log(data);
     tenant.to(data.to).to(socket.userID).emit("emit image", data);
+
+    const message = {
+      user_name: data.userName,
+      data: data.url,
+      from: data.from,
+      to: data.to,
+      time: new Date(),
+    };
+
+    messageStore.saveMessage(message);
   });
 });
