@@ -126,7 +126,7 @@ socket.on("admin to client", (message) => {
 });
 
 socket.on("emit image", (data) => {
-  document.querySelector(".sendImage").value = "";
+  document.querySelector(".inputfile").value = "";
   socket.emit("user list update");
 
   chat.innerHTML += `

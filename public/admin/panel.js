@@ -3,7 +3,7 @@ const userNameSession = localStorage.getItem("userNameSession");
 const userList = document.querySelector(".user-list");
 const msg = document.querySelector(".msg");
 const send = document.querySelector(".send");
-const sendImage = document.querySelector(".sendImage");
+const inputfile = document.querySelector(".inputfile");
 const message_box = document.querySelector(".message_box");
 const user_name = document.querySelector("#user_name");
 const pre_define = document.querySelector("#predefine_admin_id");
@@ -74,7 +74,7 @@ socket.on("user list update", (users) => {
 userList.addEventListener("click", (e) => {
   if (e.target.classList.contains("specific_user")) {
     send.setAttribute("id", e.target.id);
-    sendImage.setAttribute("id", e.target.id);
+    inputfile.setAttribute("id", e.target.id);
     message_box.setAttribute("id", "id" + e.target.id);
     user_name.innerHTML = e.target.textContent;
   }
@@ -155,7 +155,7 @@ socket.on("user to admin", (message) => {
 });
 
 socket.on("emit image", (data) => {
-  document.querySelector(".sendImage").value = "";
+  document.querySelector(".inputfile").value = "";
   socket.emit("user list update");
   const panel_id = "#id" + data.panel;
   const panel = document.querySelector(panel_id);
