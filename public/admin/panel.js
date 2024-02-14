@@ -153,7 +153,7 @@ socket.on("user to admin", (message) => {
 });
 
 socket.on("emit image", (data) => {
-  alert("emit received by admin");
+  document.querySelector(".sendImage").value = "";
   socket.emit("user list update");
   const panel_id = "#id" + data.panel;
   const panel = document.querySelector(panel_id);
@@ -189,7 +189,6 @@ function upload(files, id) {
   const panel = id;
   const to = id;
   const data = { file, mime, name, to, from, userName, panel };
-
   socket.emit("upload", data, (status) => {
     console.log(status);
   });

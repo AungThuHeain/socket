@@ -124,6 +124,7 @@ socket.on("admin to client", (message) => {
 });
 
 socket.on("emit image", (data) => {
+  document.querySelector(".sendImage").value = "";
   socket.emit("user list update");
   const blob = new Blob([data.file], { type: data.mime });
   const imageUrl = URL.createObjectURL(blob);
