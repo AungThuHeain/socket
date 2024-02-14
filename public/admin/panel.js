@@ -155,7 +155,6 @@ socket.on("user to admin", (message) => {
 });
 
 socket.on("emit image", (data) => {
-  alert("emit");
   document.querySelector(".sendImage").value = "";
   socket.emit("user list update");
   const panel_id = "#id" + data.panel;
