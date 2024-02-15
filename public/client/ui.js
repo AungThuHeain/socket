@@ -119,7 +119,7 @@ setTimeout(function () {
 
         if (localStorage.getItem("sessionID")) {
             data = {
-                name: userNameSession,
+                name: localStorage.getItem("userNameSession"),
                 msg: msg.value,
                 to: predefine_admin_id,
             };
