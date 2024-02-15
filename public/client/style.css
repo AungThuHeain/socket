@@ -33,7 +33,8 @@ body {
   background-color: white;
   border: 1px solid #e6e3e3;
   border-radius: 10px;
-  box-shadow: 0px -5px 5px rgba(0, 0, 0, 0.1), -5px 0px 5px rgba(0, 0, 0, 0.1), 5px 0px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px -5px 5px rgba(0, 0, 0, 0.1), -5px 0px 5px rgba(0, 0, 0, 0.1),
+    5px 0px 5px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 
@@ -62,13 +63,13 @@ body {
 }
 
 .flex {
-  display:flex; 
+  display: flex;
   justify-content: space-between;
   padding: 0px 10px;
 }
 
 .nav {
-  display:flex; 
+  display: flex;
   justify-content: space-between;
   border-bottom: 1px solid rgb(207, 205, 205);
   padding: 10px 5px;
@@ -103,7 +104,8 @@ body {
 }
 
 .traingle {
-  transition: top ease-in-out .2s,box-shadow ease-in-out .5s,-webkit-box-shadow ease-in-out .5s;
+  transition: top ease-in-out 0.2s, box-shadow ease-in-out 0.5s,
+    -webkit-box-shadow ease-in-out 0.5s;
   content: "";
   position: absolute;
   width: 15px;
@@ -114,7 +116,7 @@ body {
   bottom: -14px;
   right: 65px;
   /* -webkit-box-shadow: 2px -4px 10px -1px rgba(0,0,0,.35); */
-  box-shadow: 2px -4px 10px -1px rgba(0,0,0,.35);
+  box-shadow: 2px -4px 10px -1px rgba(0, 0, 0, 0.35);
 }
 
 .p-1 {
@@ -126,4 +128,22 @@ body {
   margin-top: 20px;
   margin-bottom: 0;
   padding: 10px 10px;
+}
+
+.inputfile {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.inputfile + label {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.inputfile + label * {
+  pointer-events: none;
 }

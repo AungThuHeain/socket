@@ -3,21 +3,24 @@ const userNameSession = localStorage.getItem("userNameSession");
 const userList = document.querySelector(".user-list");
 const msg = document.querySelector(".msg");
 const send = document.querySelector(".send");
+const inputile = document.querySelector(".inputfile");
 const message_box = document.querySelector(".message_box");
 const user_name = document.querySelector("#user_name");
 const pre_define = document.querySelector("#predefine_admin_id");
-let predefine_admin_id = 12345;
+let predefine_admin_id = "12345";
 //let predefine_admin_id = pre_define.textContent;
 
 //connect to socket server
-const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
-  transports: ["websocket"],
-  autoConnect: true,
-});
-
-// const socket = io("http://localhost:4000/" + predefine_admin_id, {
+// const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
+//   transports: ["websocket"],
 //   autoConnect: true,
 // });
+
+const socket = io("http://localhost:4000/" + predefine_admin_id, {
+  autoConnect: true,
+  transports: ["websocket"],
+  maxHttpBufferSize: 2e8,
+});
 
 if (sessionID) {
   socket.auth = {
@@ -71,6 +74,7 @@ socket.on("user list update", (users) => {
 userList.addEventListener("click", (e) => {
   if (e.target.classList.contains("specific_user")) {
     send.setAttribute("id", e.target.id);
+    inputfile.setAttribute("id", e.target.id);
     message_box.setAttribute("id", "id" + e.target.id);
     user_name.innerHTML = e.target.textContent;
   }
@@ -149,3 +153,59 @@ socket.on("user to admin", (message) => {
    </div>`;
   }
 });
+
+// receive file upload event
+socket.on("upload file", (data) => {
+  document.querySelector(".inputfile").value = "";
+  socket.emit("user list update");
+  const panel_id = "#id" + data.panel;
+  const panel = document.querySelector(panel_id);
+
+  if (panel) {
+    panel.innerHTML += `
+     
+    <div class="p-6 max-w-sm mx-2 rounded-xl shadow-lg my-2 items-start space-x-5 border-2">
+    <div class="flex">
+    <h6 class="text-slate-500 font-bold">${
+      data.userName == null ? "You" : data.userName
+    }</h6>
+    </div>
+    
+    <div>
+        <img src=" ${data.url}">
+    </div>
+   </div>`;
+  } else {
+    console.log("no panel found");
+  }
+});
+
+function upload(files, id) {
+  // const blob = new Blob([files[0]], { type: files[0].type });
+  // const imageUrl = URL.createObjectURL(blob);
+
+  const reader = new FileReader();
+
+  reader.readAsDataURL(files[0]);
+
+  reader.onload = function (event) {
+    imageUrl = event.target.result;
+    console.log("Data URL:", imageUrl);
+
+    const data = {
+      url: imageUrl,
+      to: id,
+      from: socket.userID,
+      userName: "Admin",
+      panel: id,
+    };
+    console.log(data);
+    socket.emit("upload", data, (status) => {
+      alert("upload");
+      console.log(status);
+    });
+  };
+  reader.onerror = function (event) {
+    console.error("Image upload error", event.target.error);
+  };
+}

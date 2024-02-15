@@ -28,6 +28,7 @@ const server = app.listen("4000", () => {
 
 /**create socket */
 const io = socket(server, {
+  maxHttpBufferSize: 2e8,
   cors: {
     origins: "*",
   },
@@ -145,7 +146,7 @@ tenant.on("connection", (socket) => {
   ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
   socket.on("get old message", () => {
     const messages = messageStore.findMessagesForUser(socket.userID);
-    console.log(messages);
+
     //emit to user to show old message on chat widget
     socket.emit("get old message", messages);
   });
@@ -214,5 +215,21 @@ tenant.on("connection", (socket) => {
       }
     });
     tenant.emit("user list update", users);
+  });
+
+  //file upload
+  socket.on("upload", (data) => {
+    console.log(data);
+    tenant.to(data.to).to(socket.userID).emit("upload file", data);
+
+    const message = {
+      user_name: data.userName,
+      data: data.url,
+      from: data.from,
+      to: data.to,
+      time: new Date(),
+    };
+
+    messageStore.saveMessage(message);
   });
 });
