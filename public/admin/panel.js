@@ -154,7 +154,8 @@ socket.on("user to admin", (message) => {
   }
 });
 
-socket.on("emit image", (data) => {
+// receive file upload event
+socket.on("upload file", (data) => {
   document.querySelector(".inputfile").value = "";
   socket.emit("user list update");
   const panel_id = "#id" + data.panel;
