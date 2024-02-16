@@ -58,7 +58,7 @@ socket.on("session", ({ sessionID, userID, userName }) => {
 });
 
 //show user list
-socket.on("users", (users) => {
+socket.on("waiting users", (users) => {
   users.forEach((user) => {
     userList.innerHTML += `<div
               class="d-flex justify-content-between mt-2 mx-2 border-2  rounded ${user.connected}"
@@ -77,7 +77,7 @@ socket.on("user list update", (users) => {
     userList.innerHTML += `<div
     class="d-flex justify-content-between mt-2 mx-2 border-2  rounded ${user.connected}"
   >
-    <h6 id="${user.userID}" session_id="${user.sessionID}" class="fw-bold specific_user ">${user.userName}</h6>
+    <h6 id="${user.userID}" class="fw-bold specific_user ">${user.userName}</h6>
 
   </div>`;
   });
@@ -86,11 +86,7 @@ socket.on("user list update", (users) => {
 /////////////////////////emit to server////////////////////////////////////////////////
 userList.addEventListener("click", (e) => {
   if (e.target.classList.contains("specific_user")) {
-    let sessionID = document
-      .getElementById(e.target.id)
-      .getAttribute("session_id");
     send.setAttribute("id", e.target.id);
-    send.setAttribute("session_id", sessionID);
     inputFile.setAttribute("id", e.target.id);
     message_box.setAttribute("id", "id" + e.target.id);
     user_name.innerHTML = e.target.textContent;
@@ -105,12 +101,11 @@ send.addEventListener("click", (e) => {
   socket.emit("admin to client", {
     data: data,
     to: e.target.id,
-    sessionID: document.getElementById(e.target.id).getAttribute("session_id"),
   });
   msg.value = "";
 });
 
-///////////////////////////////////////////////emit from server//////////////////////////////////////////////////
+//emit from server
 socket.on("chat history", (messages) => {
   message_box.innerHTML = "";
   messages.forEach((message) => {

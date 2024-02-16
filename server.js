@@ -95,7 +95,8 @@ tenant.on("connection", (socket) => {
 
     if (
       session.tenantID == socket.nsp.name &&
-      "/" + session.userID != socket.nsp.name
+      "/" + session.userID != socket.nsp.name &&
+      session.status == "waiting"
     ) {
       users.push({
         connected: session.connected,
@@ -103,12 +104,9 @@ tenant.on("connection", (socket) => {
         tenantID: socket.nsp.name,
         userID: session.userID,
         userName: session.userName,
-        sessionID: session.sessionID,
       });
     }
   });
-
-  console.log(users);
 
   // join the "userID" room
   socket.join(socket.userID);
@@ -123,7 +121,7 @@ tenant.on("connection", (socket) => {
   });
 
   //emit user list to admin
-  socket.emit("users", users);
+  socket.emit("waiting users", users);
 
   /////////////////////emit from admin///////////////////////////////////////////////////////////
 
@@ -135,7 +133,7 @@ tenant.on("connection", (socket) => {
   });
 
   //send message to specific user from admin
-  socket.on("admin to client", ({ data, to, sessionID }) => {
+  socket.on("admin to client", ({ data, to }) => {
     const message = {
       data: data.msg,
       from: socket.userID,
@@ -146,7 +144,13 @@ tenant.on("connection", (socket) => {
     tenant.to(to).to(socket.userID).emit("admin to client", message);
     messageStore.saveMessage(message);
 
-    sessionStore.updateStatus(sessionID, "queue");
+    let user = users.filter((user) => {
+      return user.userID == to;
+    });
+    let session_id = user[0].sessionID;
+    sessionStore.updateStatus(session_id, "queue");
+
+    console.log("update session", sessionStore.findAllSessions());
   });
 
   ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
@@ -180,9 +184,9 @@ tenant.on("connection", (socket) => {
         users.push({
           tenantID: socket.nsp.name,
           userID: session.userID,
+          status: session.status,
           userName: session.userName,
           connected: session.connected,
-          sessionID: session.sessionID,
         });
       }
     });
@@ -200,14 +204,7 @@ tenant.on("connection", (socket) => {
       ` '${socket.username}' disconnected from room '${socket.userID}'`
     );
 
-    sessionStore.saveSession(socket.sessionID, {
-      tenantID: socket.nsp.name,
-      userID: socket.userID,
-      userName: socket.username,
-      connected: "inactive",
-      status: "queue",
-      sessionID: socket.sessionID,
-    });
+    sessionStore.updateConnectedStatus(socket.sessionID, "inactive");
 
     users.length = 0;
     sessionStore.findAllSessions().forEach((session) => {
@@ -218,9 +215,9 @@ tenant.on("connection", (socket) => {
         users.push({
           tenantID: socket.nsp.name,
           userID: session.userID,
+          status: session.status,
           userName: session.userName,
           connected: session.connected,
-          sessionID: socket.sessionID,
         });
       }
     });

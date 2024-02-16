@@ -3,6 +3,7 @@
   saveSession(id, session) {}
   findAllSessions() {}
   updateStatus(sessionID, status) {}
+  updateConnected(sessionID, connected) {}
 }
 
 class InMemorySessionStore extends SessionStore {
@@ -27,6 +28,16 @@ class InMemorySessionStore extends SessionStore {
     let session = this.findSession(sessionID);
     if (session) {
       session.status = status;
+      this.saveSession(sessionID, session);
+      return true;
+    }
+    return false;
+  }
+
+  updateConnectedStatus(sessionID, connected) {
+    let session = this.findSession(sessionID);
+    if (session) {
+      session.connected = connected;
       this.saveSession(sessionID, session);
       return true;
     }
