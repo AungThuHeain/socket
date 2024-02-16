@@ -84,6 +84,8 @@ tenant.on("connection", (socket) => {
     userID: socket.userID,
     userName: socket.username,
     connected: "active",
+    status: "waiting",
+    sessionID: socket.sessionID,
   });
 
   //store session on server side and show when admin initiate
@@ -97,15 +99,17 @@ tenant.on("connection", (socket) => {
     ) {
       users.push({
         connected: session.connected,
+        status: session.status,
         tenantID: socket.nsp.name,
         userID: session.userID,
         userName: session.userName,
-        sessionID: socket.sessionID,
+        sessionID: session.sessionID,
       });
     }
   });
 
   console.log(users);
+
   // join the "userID" room
   socket.join(socket.userID);
 
@@ -131,7 +135,7 @@ tenant.on("connection", (socket) => {
   });
 
   //send message to specific user from admin
-  socket.on("admin to client", ({ data, to }) => {
+  socket.on("admin to client", ({ data, to, sessionID }) => {
     const message = {
       data: data.msg,
       from: socket.userID,
@@ -141,6 +145,8 @@ tenant.on("connection", (socket) => {
     //emit to user and admin to append new message on chat window
     tenant.to(to).to(socket.userID).emit("admin to client", message);
     messageStore.saveMessage(message);
+
+    sessionStore.updateStatus(sessionID, "queue");
   });
 
   ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
@@ -165,6 +171,7 @@ tenant.on("connection", (socket) => {
 
   socket.on("user list update", () => {
     users.length = 0;
+
     sessionStore.findAllSessions().forEach((session) => {
       if (
         session.tenantID == socket.nsp.name &&
@@ -175,7 +182,7 @@ tenant.on("connection", (socket) => {
           userID: session.userID,
           userName: session.userName,
           connected: session.connected,
-          sessionID: socket.sessionID,
+          sessionID: session.sessionID,
         });
       }
     });
@@ -192,11 +199,14 @@ tenant.on("connection", (socket) => {
     console.log(
       ` '${socket.username}' disconnected from room '${socket.userID}'`
     );
+
     sessionStore.saveSession(socket.sessionID, {
       tenantID: socket.nsp.name,
       userID: socket.userID,
       userName: socket.username,
       connected: "inactive",
+      status: "queue",
+      sessionID: socket.sessionID,
     });
 
     users.length = 0;

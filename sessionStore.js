@@ -2,6 +2,7 @@
   findSession(id) {}
   saveSession(id, session) {}
   findAllSessions() {}
+  updateStatus(sessionID, status) {}
 }
 
 class InMemorySessionStore extends SessionStore {
@@ -20,6 +21,16 @@ class InMemorySessionStore extends SessionStore {
 
   findAllSessions() {
     return [...this.sessions.values()];
+  }
+
+  updateStatus(sessionID, status) {
+    let session = this.findSession(sessionID);
+    if (session) {
+      session.status = status;
+      this.saveSession(sessionID, session);
+      return true;
+    }
+    return false;
   }
 }
 
