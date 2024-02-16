@@ -40,6 +40,18 @@ if (sessionID) {
   socket.auth = { sessionID: sessionID, name: userNameSession };
 }
 
+//handle connection error
+socket.on("connect_error", (err) => {
+  // the reason of the error, for example "xhr poll error"
+  console.log(err.message);
+
+  // some additional description, for example the status code of the initial HTTP response
+  console.log(err.description);
+
+  // some additional context, for example the XMLHttpRequest object
+  console.log(err.context);
+});
+
 //handle session data
 socket.on("session", ({ sessionID, userID, userName }) => {
   // attach the session ID to the next reconnection attempts
