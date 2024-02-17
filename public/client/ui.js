@@ -77,7 +77,7 @@ setTimeout(function () {
     const userNameSession = localStorage.getItem("userNameSession");
 
     //get org_id and add as socket-server namespace
-    let predefine_admin_id = "7o9UEjhviBxFR5m2U9nJGj2TUTcLomhqyZc1dFaC";
+    let predefine_admin_id = "NRlo0oyhvTobHvuJSPAjgDKE8u3NaTNFsddj62pl";
 
     const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
         transports: ["websocket"],
@@ -119,7 +119,7 @@ setTimeout(function () {
 
         if (localStorage.getItem("sessionID")) {
             data = {
-                name: userNameSession,
+                name: localStorage.getItem("userNameSession"),
                 msg: msg.value,
                 to: predefine_admin_id,
             };

@@ -148,7 +148,7 @@ tenant.on("connection", (socket) => {
       return user.userID == to;
     });
     let session_id = user[0].sessionID;
-    sessionStore.updateStatus(session_id, "queue");
+    // sessionStore.updateStatus(session_id, "queue");
 
     console.log("update session", sessionStore.findAllSessions());
   });
