@@ -144,6 +144,7 @@ tenant.on("connection", (socket) => {
     tenant.to(to).to(socket.userID).emit("admin to client", message);
     messageStore.saveMessage(message);
 
+    console.log("not change user", users);
     let user = users.filter((user) => {
       return user.userID == to;
     });
