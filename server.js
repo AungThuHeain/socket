@@ -113,7 +113,7 @@ tenant.on("connection", (socket) => {
         tenantID: socket.nsp.name,
         userID: session.userID,
         userName: session.userName,
-        sessionID: session.sessionID,
+        sessionID: socket.sessionID,
       });
     }
   });
