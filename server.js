@@ -194,6 +194,27 @@ tenant.on("connection", (socket) => {
     socket.emit("waiting user list update", users);
   });
 
+  socket.on("queue user list update", () => {
+    users.length = 0;
+
+    sessionStore.findAllSessions().forEach((session) => {
+      if (
+        session.tenantID == socket.nsp.name &&
+        "/" + session.userID != socket.nsp.name &&
+        session.status == "queue"
+      ) {
+        users.push({
+          tenantID: socket.nsp.name,
+          userID: session.userID,
+          status: session.status,
+          userName: session.userName,
+          connected: session.connected,
+        });
+      }
+    });
+    socket.emit("queue user list update", users);
+  });
+
   //handle typing
   socket.on("typing", (name) => {
     socket.broadcast.emit("typing", name);
