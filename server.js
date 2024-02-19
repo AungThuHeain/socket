@@ -143,7 +143,24 @@ tenant.on("connection", (socket) => {
     //emit to user and admin to append new message on chat window
     tenant.to(to).to(socket.userID).emit("admin to client", message);
     messageStore.saveMessage(message);
-
+    (users.length = ""),
+      sessionStore.findAllSessions().forEach((session) => {
+        //filter user by organization id and remove admin from user list
+        if (
+          session.tenantID == socket.nsp.name &&
+          "/" + session.userID != socket.nsp.name &&
+          session.status == "waiting"
+        ) {
+          users.push({
+            connected: session.connected,
+            status: session.status,
+            tenantID: socket.nsp.name,
+            userID: session.userID,
+            userName: session.userName,
+            sessionID: session.sessionID,
+          });
+        }
+      });
     console.log("user list", users);
     let user = users.filter((user) => {
       return user.userID == to;
