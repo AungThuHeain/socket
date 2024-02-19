@@ -26,6 +26,7 @@ class InMemorySessionStore extends SessionStore {
 
   updateStatus(sessionID, status) {
     let session = this.findSession(sessionID);
+
     if (session) {
       session.status = status;
       this.saveSession(sessionID, session);

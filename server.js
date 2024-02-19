@@ -88,11 +88,20 @@ tenant.on("connection", (socket) => {
     sessionID: socket.sessionID,
   });
 
+  //emit session detail to admin and user to store on local storage
+  socket.emit("session", {
+    sessionID: socket.sessionID,
+    userID: socket.userID,
+    userName: socket.username,
+  });
+
+  // join the "userID" room
+  socket.join(socket.userID);
+
   //store session on server side and show when admin initiate
 
   sessionStore.findAllSessions().forEach((session) => {
-    // socket.nsp.nam is socket namespace(organization_slug)
-
+    //filter user by organization id and remove admin from user list
     if (
       session.tenantID == socket.nsp.name &&
       "/" + session.userID != socket.nsp.name &&
@@ -104,20 +113,9 @@ tenant.on("connection", (socket) => {
         tenantID: socket.nsp.name,
         userID: session.userID,
         userName: session.userName,
+        sessionID: session.sessionID,
       });
     }
-  });
-
-  // join the "userID" room
-  socket.join(socket.userID);
-
-  //////////////////////emit from server ///////////////////////////////////////////
-
-  //emit session detail to admin and user to store on local storage
-  socket.emit("session", {
-    sessionID: socket.sessionID,
-    userID: socket.userID,
-    userName: socket.username,
   });
 
   //emit user list to admin
@@ -140,18 +138,18 @@ tenant.on("connection", (socket) => {
       to: to,
       time: new Date(),
     };
+
     //emit to user and admin to append new message on chat window
     tenant.to(to).to(socket.userID).emit("admin to client", message);
     messageStore.saveMessage(message);
 
-    console.log("not change user", users);
     let user = users.filter((user) => {
       return user.userID == to;
     });
+    console.log("to update user", user);
     let session_id = user[0].sessionID;
     sessionStore.updateStatus(session_id, "queue");
-
-    console.log("update session", sessionStore.findAllSessions());
+    console.log(sessionStore.findAllSessions());
   });
 
   ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
