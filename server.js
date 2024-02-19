@@ -143,13 +143,14 @@ tenant.on("connection", (socket) => {
     tenant.to(to).to(socket.userID).emit("admin to client", message);
     messageStore.saveMessage(message);
 
+    console.log("user list", users);
     let user = users.filter((user) => {
       return user.userID == to;
     });
     console.log("to update user", user);
     let session_id = user[0].sessionID;
     sessionStore.updateStatus(session_id, "queue");
-    console.log(sessionStore.findAllSessions());
+    console.log("after update", sessionStore.findAllSessions());
   });
 
   ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
