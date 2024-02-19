@@ -173,13 +173,14 @@ tenant.on("connection", (socket) => {
     messageStore.saveMessage(message);
   });
 
-  socket.on("user list update", () => {
+  socket.on("waiting user list update", () => {
     users.length = 0;
 
     sessionStore.findAllSessions().forEach((session) => {
       if (
         session.tenantID == socket.nsp.name &&
-        "/" + session.userID != socket.nsp.name
+        "/" + session.userID != socket.nsp.name &&
+        session.status == "waiting"
       ) {
         users.push({
           tenantID: socket.nsp.name,
@@ -190,7 +191,7 @@ tenant.on("connection", (socket) => {
         });
       }
     });
-    socket.emit("user list update", users);
+    socket.emit("waiting user list update", users);
   });
 
   //handle typing
