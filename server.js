@@ -100,6 +100,7 @@ tenant.on("connection", (socket) => {
 
   //store session on server side and show when admin initiate
 
+  console.log("all session user", sessionStore.findAllSessions());
   sessionStore.findAllSessions().forEach((session) => {
     //filter user by organization id and remove admin from user list
     if (
