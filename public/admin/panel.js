@@ -58,7 +58,7 @@ socket.on("session", ({ sessionID, userID, userName }) => {
 });
 
 //show user list
-socket.on("waiting users", (users) => {
+socket.on("initial user list", (users) => {
   users.forEach((user) => {
     userList.innerHTML += `<div
               class="d-flex justify-content-between mt-2 mx-2 border-2  rounded ${user.connected}"

@@ -131,7 +131,7 @@ tenant.on("connection", (socket) => {
   });
 
   //emit user list to admin
-  socket.emit("waiting users", users);
+  socket.emit("initial user list", users);
 
   /////////////////////emit from admin///////////////////////////////////////////////////////////
 
@@ -154,31 +154,6 @@ tenant.on("connection", (socket) => {
     //emit to user and admin to append new message on chat window
     tenant.to(to).to(socket.userID).emit("admin to client", message);
     messageStore.saveMessage(message);
-    users.length = 0;
-    sessionStore.findAllSessions().forEach((session) => {
-      //filter user by organization id and remove admin from user list
-      if (
-        session.tenantID == socket.nsp.name &&
-        "/" + session.userID != socket.nsp.name
-      ) {
-        users.push({
-          connected: session.connected,
-          status: session.status,
-          tenantID: socket.nsp.name,
-          userID: session.userID,
-          userName: session.userName,
-          sessionID: session.sessionID,
-        });
-      }
-    });
-    console.log("user list", users);
-    let user = users.filter((user) => {
-      return user.userID == to;
-    });
-    console.log("to update user", user);
-    let session_id = user[0].sessionID;
-    sessionStore.updateStatus(session_id, "queue");
-    console.log("after update", sessionStore.findAllSessions());
   });
 
   ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
@@ -311,11 +286,11 @@ tenant.on("connection", (socket) => {
         });
       }
     });
-    console.log("before taking user list", users);
+    console.log("user list before taking", users);
     let user = users.filter((user) => {
       return user.userID == id;
     });
-    console.log("to update user", user);
+    console.log("taking user", user);
     let session_id = user[0].sessionID;
     sessionStore.updateStatus(session_id, "queue");
     console.log("after taking", sessionStore.findAllSessions());
