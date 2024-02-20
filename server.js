@@ -289,4 +289,9 @@ tenant.on("connection", (socket) => {
 
     messageStore.saveMessage(message);
   });
+
+  socket.on("take message", (id) => {
+    tenant.to(id).emit("take message", message);
+    console.log("server send take message to user id", id);
+  });
 });
