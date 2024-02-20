@@ -293,5 +293,31 @@ tenant.on("connection", (socket) => {
   socket.on("take message", (id) => {
     tenant.to(id).emit("take message");
     console.log("server send take message to user id", id);
+
+    users.length = 0;
+    sessionStore.findAllSessions().forEach((session) => {
+      //filter user by organization id and remove admin from user list
+      if (
+        session.tenantID == socket.nsp.name &&
+        "/" + session.userID != socket.nsp.name
+      ) {
+        users.push({
+          connected: session.connected,
+          status: session.status,
+          tenantID: socket.nsp.name,
+          userID: session.userID,
+          userName: session.userName,
+          sessionID: session.sessionID,
+        });
+      }
+    });
+    console.log("before taking user list", users);
+    let user = users.filter((user) => {
+      return user.userID == id;
+    });
+    console.log("to update user", user);
+    let session_id = user[0].sessionID;
+    sessionStore.updateStatus(session_id, "queue");
+    console.log("after taking", sessionStore.findAllSessions());
   });
 });
