@@ -291,7 +291,7 @@ tenant.on("connection", (socket) => {
   });
 
   socket.on("take message", (id) => {
-    tenant.to(id).emit("take message", message);
+    tenant.to(id).emit("take message");
     console.log("server send take message to user id", id);
   });
 });
