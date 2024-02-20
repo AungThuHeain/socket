@@ -78,15 +78,26 @@ tenant.on("connection", (socket) => {
   );
 
   //save session data on server local storage
-
-  sessionStore.saveSession(socket.sessionID, {
-    tenantID: socket.nsp.name,
-    userID: socket.userID,
-    userName: socket.username,
-    connected: "active",
-    status: "waiting",
-    sessionID: socket.sessionID,
-  });
+  const oldSession = sessionStore.findSession(socket.sessionID);
+  if (oldSession) {
+    sessionStore.saveSession(socket.sessionID, {
+      tenantID: socket.nsp.name,
+      userID: socket.userID,
+      userName: socket.username,
+      connected: "active",
+      status: oldSession.status,
+      sessionID: socket.sessionID,
+    });
+  } else {
+    sessionStore.saveSession(socket.sessionID, {
+      tenantID: socket.nsp.name,
+      userID: socket.userID,
+      userName: socket.username,
+      connected: "active",
+      status: "waiting",
+      sessionID: socket.sessionID,
+    });
+  }
 
   //emit session detail to admin and user to store on local storage
   socket.emit("session", {
