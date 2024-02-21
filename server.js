@@ -138,12 +138,16 @@ tenant.on("connection", (socket) => {
   //get chat history
   socket.on("get message", (id) => {
     const message = messageStore.findMessagesForUser(id);
+
+    messageStore.saveMessage(message);
     socket.emit("chat history", message);
   });
 
   //send message to user
   socket.on("admin to client", ({ data, to }) => {
     const message = {
+      type: "text",
+      sender: "admin",
       data: data.msg,
       from: socket.userID,
       to: to,
@@ -163,6 +167,8 @@ tenant.on("connection", (socket) => {
 
   socket.on("user to admin", function (data) {
     const message = {
+      type: "text",
+      sender: "user",
       user_name: data.name,
       data: data.msg,
       from: socket.userID,
@@ -235,6 +241,7 @@ tenant.on("connection", (socket) => {
     tenant.to(data.to).to(socket.userID).emit("upload file", data);
 
     const message = {
+      type: "image",
       user_name: data.userName,
       data: data.url,
       from: data.from,
@@ -246,6 +253,13 @@ tenant.on("connection", (socket) => {
   });
 
   socket.on("take message", (id) => {
+    const message = {
+      type: "message",
+      to: id,
+      from: socket.userID,
+      time: new Date(),
+    };
+    messageStore.saveMessage(message);
     tenant.to(id).to(socket.userID).emit("take message");
     console.log("server send take message to user id", id, socket.userID);
 
