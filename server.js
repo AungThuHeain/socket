@@ -60,6 +60,8 @@ tenant.use((socket, next) => {
     socket.username = "Admin";
   } else if (socket.handshake.auth.userID) {
     socket.userID = socket.handshake.auth.userID;
+    socket.sessionID = sessionID;
+    socket.username = userName;
   } else {
     if (!userName) {
       return next(new Error("Invalid username"));
