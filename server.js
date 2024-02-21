@@ -240,7 +240,7 @@ tenant.on("connection", (socket) => {
     tenant.to(data.to).to(socket.userID).emit("upload file", data);
 
     const message = {
-      type: "file",
+      type: "image",
       user_name: data.userName,
       data: data.url,
       from: data.from,
