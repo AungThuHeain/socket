@@ -237,7 +237,6 @@ tenant.on("connection", (socket) => {
 
   //image upload
   socket.on("upload", (data) => {
-    console.log(data);
     tenant.to(data.to).to(socket.userID).emit("upload file", data);
 
     const message = {
@@ -249,7 +248,7 @@ tenant.on("connection", (socket) => {
       time: new Date(),
     };
 
-    messageStore.saveMessage(message);
+    //  messageStore.saveMessage(message);
   });
 
   socket.on("take message", (id) => {
