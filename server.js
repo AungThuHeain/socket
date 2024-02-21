@@ -247,7 +247,7 @@ tenant.on("connection", (socket) => {
 
   socket.on("take message", (id) => {
     tenant.to(id).to(socket.userID).emit("take message");
-    console.log("server send take message to user id", id);
+    console.log("server send take message to user id", id, socket.userID);
 
     users.length = 0;
     sessionStore.findAllSessions().forEach((session) => {
