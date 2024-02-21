@@ -248,7 +248,7 @@ tenant.on("connection", (socket) => {
       time: new Date(),
     };
 
-    //  messageStore.saveMessage(message);
+    messageStore.saveMessage(message);
   });
 
   socket.on("take message", (id) => {
