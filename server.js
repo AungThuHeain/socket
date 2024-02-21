@@ -41,13 +41,13 @@ tenant.use((socket, next) => {
   const userName = socket.handshake.auth.name;
 
   if (sessionID) {
-    // find existing session
-    const session = sessionStore.findSession(sessionID);
+    // find existing session from server
+    const server_session = sessionStore.findSession(sessionID);
 
-    if (session) {
+    if (server_session) {
       socket.sessionID = sessionID;
-      socket.userID = session.userID;
-      socket.username = session.userName;
+      socket.userID = server_session.userID;
+      socket.username = server_session.userName;
       return next();
     }
   }
@@ -58,6 +58,8 @@ tenant.use((socket, next) => {
     socket.sessionID = socket.handshake.auth.adminId;
     socket.userID = socket.handshake.auth.adminId;
     socket.username = "Admin";
+  } else if (socket.handshake.auth.userID) {
+    socket.userID = socket.handshake.auth.userID;
   } else {
     if (!userName) {
       return next(new Error("Invalid username"));
