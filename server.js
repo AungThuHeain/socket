@@ -1,19 +1,18 @@
 const express = require("express");
 const socket = require("socket.io");
-var path = require("path");
-
+const path = require("path");
 const crypto = require("crypto");
 const randomId = () => crypto.randomBytes(8).toString("hex");
-
 const { InMemorySessionStore } = require("./sessionStore");
-const sessionStore = new InMemorySessionStore();
 const { InMemoryMessageStore } = require("./messageStore");
-const { emit } = require("process");
 const messageStore = new InMemoryMessageStore();
+const sessionStore = new InMemorySessionStore();
+
 /**create express app */
 const app = express();
 
 app.use(express.static(path.join(__dirname, "public")));
+
 /**create express server */
 const server = app.listen("4000", () => {
   console.log("server run on port 4000");
@@ -28,13 +27,13 @@ const server = app.listen("4000", () => {
 
 /**create socket */
 const io = socket(server, {
-  maxHttpBufferSize: 2e8,
+  maxHttpBufferSize: 2e8, //to increase max upload size for image upload,default upload max size is 1 mb
   cors: {
     origins: "*",
   },
 });
 
-const tenant = io.of(/^\/\w+$/);
+const tenant = io.of(/^\/\w+$/); //create namespace for multiple organization (io.of('org_one'),io.of('org_two)).In this case we need to accept random namespace so we used regex
 
 //middleware
 tenant.use((socket, next) => {
@@ -77,7 +76,7 @@ tenant.on("connection", (socket) => {
     `User '${socket.username}-${socket.userID}' connected on organization '${socket.nsp.name}' server`
   );
 
-  //save session data on server local storage
+  //save session data on server's storage
   const oldSession = sessionStore.findSession(socket.sessionID);
   if (oldSession) {
     sessionStore.saveSession(socket.sessionID, {
@@ -99,21 +98,20 @@ tenant.on("connection", (socket) => {
     });
   }
 
-  //emit session detail to admin and user to store on local storage
+  //emit session detail  to store on browser's local storage
   socket.emit("session", {
     sessionID: socket.sessionID,
     userID: socket.userID,
     userName: socket.username,
   });
 
-  // join the "userID" room
+  // user join room by his userID
   socket.join(socket.userID);
 
   //store session on server side and show when admin initiate
-
   console.log("all session user", sessionStore.findAllSessions());
   sessionStore.findAllSessions().forEach((session) => {
-    //filter user by organization id and remove admin from user list
+    //remove admin user of tenant and filter 'waiting' status users to show admin panel
     if (
       session.tenantID == socket.nsp.name &&
       "/" + session.userID != socket.nsp.name &&
@@ -133,16 +131,13 @@ tenant.on("connection", (socket) => {
   //emit user list to admin
   socket.emit("initial user list", users);
 
-  /////////////////////emit from admin///////////////////////////////////////////////////////////
-
-  //init chat history when click on user name
+  //get chat history
   socket.on("get message", (id) => {
     const message = messageStore.findMessagesForUser(id);
-    //emit to admin to show chat history
     socket.emit("chat history", message);
   });
 
-  //send message to specific user from admin
+  //send message to user
   socket.on("admin to client", ({ data, to }) => {
     const message = {
       data: data.msg,
@@ -151,16 +146,14 @@ tenant.on("connection", (socket) => {
       time: new Date(),
     };
 
-    //emit to user and admin to append new message on chat window
+    //emit to specific user and admin
     tenant.to(to).to(socket.userID).emit("admin to client", message);
     messageStore.saveMessage(message);
   });
 
-  ////////////////emit from user//////////////////////////////////////////////////////////////////////////////
+  //get chat history to show in user widget
   socket.on("get old message", () => {
     const messages = messageStore.findMessagesForUser(socket.userID);
-
-    //emit to user to show old message on chat widget
     socket.emit("get old message", messages);
   });
 
@@ -223,33 +216,16 @@ tenant.on("connection", (socket) => {
     socket.broadcast.emit("typing", name);
   });
 
-  // notify users upon disconnection
+  // connection disconnected
   socket.on("disconnect", async () => {
     console.log(
       ` '${socket.username}' disconnected from room '${socket.userID}'`
     );
 
     sessionStore.updateConnectedStatus(socket.sessionID, "inactive");
-
-    users.length = 0;
-    sessionStore.findAllSessions().forEach((session) => {
-      if (
-        session.tenantID == socket.nsp.name &&
-        "/" + session.userID != socket.nsp.name
-      ) {
-        users.push({
-          tenantID: socket.nsp.name,
-          userID: session.userID,
-          status: session.status,
-          userName: session.userName,
-          connected: session.connected,
-        });
-      }
-    });
-    tenant.emit("user list update", users);
   });
 
-  //file upload
+  //image upload
   socket.on("upload", (data) => {
     console.log(data);
     tenant.to(data.to).to(socket.userID).emit("upload file", data);
@@ -286,13 +262,16 @@ tenant.on("connection", (socket) => {
         });
       }
     });
-    console.log("user list before taking", users);
+
     let user = users.filter((user) => {
       return user.userID == id;
     });
-    console.log("taking user", user);
-    let session_id = user[0].sessionID;
-    sessionStore.updateStatus(session_id, "queue");
-    console.log("after taking", sessionStore.findAllSessions());
+
+    if (user[0].sessionID) {
+      let session_id = user[0].sessionID;
+      sessionStore.updateStatus(session_id, "queue");
+    } else {
+      console.log("Error occurs when trying to change user status");
+    }
   });
 });
