@@ -45,10 +45,13 @@ tenant.use((socket, next) => {
     const server_session = sessionStore.findSession(sessionID);
     console.log("server session", server_session);
     if (server_session) {
+      console.log("session under if");
       socket.sessionID = sessionID;
       socket.userID = server_session.userID;
       socket.username = server_session.userName;
       return next();
+    } else {
+      console.log("no server session");
     }
   }
 
@@ -73,6 +76,7 @@ tenant.use((socket, next) => {
 
   next();
 });
+z;
 
 tenant.on("connection", (socket) => {
   const users = [];
