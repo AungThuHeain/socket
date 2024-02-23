@@ -83,6 +83,7 @@ body {
 
 .text-primary {
   color: rgb(6, 109, 146);
+  font-size: x-small;
 }
 
 .send-btn {
@@ -151,4 +152,13 @@ body {
 .taking-message {
   text-align: center;
   color: rgb(17, 216, 17);
+}
+
+p.to {
+  color: rgb(94, 50, 50);
+  text-align: end;
+}
+
+.to-image img {
+  margin-left: auto;
 }

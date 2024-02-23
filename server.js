@@ -27,7 +27,7 @@ const server = app.listen("4000", () => {
 
 /**create socket */
 const io = socket(server, {
-  maxHttpBufferSize: 2e8, //to increase max upload size for image upload,default upload max size is 1 mb
+  maxHttpBufferSize: 20e6, //to increase max upload size for image upload,default upload max size is 1 mb(1e6)
   cors: {
     origins: "*",
   },
@@ -72,6 +72,10 @@ tenant.use((socket, next) => {
   }
 
   next();
+});
+
+socket.on("connect_error", (err) => {
+  console.log(err.message); // prints the message associated with the error
 });
 
 tenant.on("connection", (socket) => {
