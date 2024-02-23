@@ -76,7 +76,6 @@ tenant.use((socket, next) => {
 
   next();
 });
-z;
 
 tenant.on("connection", (socket) => {
   const users = [];
