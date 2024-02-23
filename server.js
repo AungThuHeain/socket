@@ -74,7 +74,7 @@ tenant.use((socket, next) => {
   next();
 });
 
-socket.on("connect_error", (err) => {
+tenant.on("connect_error", (err) => {
   console.log(err.message); // prints the message associated with the error
 });
 
