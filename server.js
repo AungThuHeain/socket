@@ -43,7 +43,7 @@ tenant.use((socket, next) => {
   if (sessionID) {
     // find existing session from server
     const server_session = sessionStore.findSession(sessionID);
-
+    console.log("server session", server_session);
     if (server_session) {
       socket.sessionID = sessionID;
       socket.userID = server_session.userID;
@@ -72,10 +72,6 @@ tenant.use((socket, next) => {
   }
 
   next();
-});
-
-tenant.on("connect_error", (err) => {
-  console.log(err.message); // prints the message associated with the error
 });
 
 tenant.on("connection", (socket) => {
