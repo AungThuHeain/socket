@@ -51,6 +51,7 @@ tenant.use((socket, next) => {
       socket.username = server_session.userName;
       return next();
     } else {
+      next(new Error("invalid"));
       console.log("no server session");
     }
   }
