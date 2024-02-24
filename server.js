@@ -45,7 +45,7 @@ tenant.use((socket, next) => {
     const server_session = sessionStore.findSession(sessionID);
     console.log("server session", server_session);
     if (server_session) {
-      console.log("session under if");
+      console.log("session shi");
       socket.sessionID = sessionID;
       socket.userID = server_session.userID;
       socket.username = server_session.userName;
