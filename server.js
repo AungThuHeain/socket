@@ -50,6 +50,8 @@ tenant.use((socket, next) => {
       socket.userID = server_session.userID;
       socket.username = server_session.userName;
       return next();
+    } else {
+      next(Error);
     }
   }
 
