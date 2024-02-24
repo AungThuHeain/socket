@@ -51,6 +51,7 @@ tenant.use((socket, next) => {
       socket.username = server_session.userName;
       return next();
     } else {
+      socket.disconnect();
       next(new Error("not session found"));
     }
   }
