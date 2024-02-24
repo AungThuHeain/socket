@@ -51,8 +51,8 @@ tenant.use((socket, next) => {
       socket.username = server_session.userName;
       return next();
     } else {
-      socket.disconnect();
-      next(new Error("not session found"));
+      // socket.disconnect();
+      // next(new Error("not session found"));
     }
   }
 
@@ -297,6 +297,6 @@ tenant.on("connection", (socket) => {
   });
 
   socket.on("end chat", () => {
-    console.log("hit end chat", socket.userID);
+    console.log("hit end chat button", socket.userID);
   });
 });
