@@ -295,4 +295,8 @@ tenant.on("connection", (socket) => {
       console.log("Error occurs when trying to change user status");
     }
   });
+
+  socket.on("end chat", () => {
+    console.log("hit end chat", socket.userID);
+  });
 });
