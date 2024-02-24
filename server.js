@@ -51,7 +51,7 @@ tenant.use((socket, next) => {
       socket.username = server_session.userName;
       return next();
     } else {
-      next(Error);
+      next(new Error("not session found"));
     }
   }
 
@@ -67,7 +67,7 @@ tenant.use((socket, next) => {
     socket.username = userName;
   } else {
     if (!userName) {
-      return next(new Error("Invalid username"));
+      return next(new Error("Need to add user name"));
     }
     socket.sessionID = randomId();
     socket.userID = randomId();
