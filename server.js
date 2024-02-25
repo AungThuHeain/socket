@@ -298,5 +298,29 @@ tenant.on("connection", (socket) => {
 
   socket.on("end chat", () => {
     console.log("hit end chat button", socket.userID);
+
+    users.length = 0;
+    sessionStore.findAllSessions().forEach((session) => {
+      //filter user by organization id and remove admin from user list
+      if (
+        session.tenantID == socket.nsp.name &&
+        "/" + session.userID != socket.nsp.name
+      ) {
+        users.push({
+          connected: session.connected,
+          status: session.status,
+          tenantID: socket.nsp.name,
+          userID: session.userID,
+          userName: session.userName,
+          sessionID: session.sessionID,
+        });
+      }
+    });
+
+    users.filter((user) => {
+      if (user.userID == socket.userID) {
+        console.log(user);
+      }
+    });
   });
 });
