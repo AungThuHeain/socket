@@ -307,20 +307,16 @@ tenant.on("connection", (socket) => {
         "/" + session.userID != socket.nsp.name
       ) {
         users.push({
-          connected: session.connected,
-          status: session.status,
-          tenantID: socket.nsp.name,
-          userID: session.userID,
-          userName: session.userName,
           sessionID: session.sessionID,
         });
       }
     });
 
-    users.filter((user) => {
+    let end_user = users.filter((user) => {
       if (user.userID == socket.userID) {
-        console.log(user);
+        return user.sessionID;
       }
     });
+    sessionStore.deleteSession(end_user);
   });
 });
