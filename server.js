@@ -27,7 +27,7 @@ const server = app.listen("4000", () => {
 
 /**create socket */
 const io = socket(server, {
-  maxHttpBufferSize: 2e8, //to increase max upload size for image upload,default upload max size is 1 mb
+  maxHttpBufferSize: 20e6, //to increase max upload size for image upload,default upload max size is 1 mb(1e6)
   cors: {
     origins: "*",
   },
@@ -43,12 +43,17 @@ tenant.use((socket, next) => {
   if (sessionID) {
     // find existing session from server
     const server_session = sessionStore.findSession(sessionID);
-
+    console.log("server session", server_session);
     if (server_session) {
+      console.log("session shi");
       socket.sessionID = sessionID;
       socket.userID = server_session.userID;
       socket.username = server_session.userName;
       return next();
+    } else {
+      socket.disconnect();
+      console.log("client disconnect because server don't have session");
+      // next(new Error("not session found"));
     }
   }
 
@@ -64,7 +69,7 @@ tenant.use((socket, next) => {
     socket.username = userName;
   } else {
     if (!userName) {
-      return next(new Error("Invalid username"));
+      return next(new Error("Need to add user name"));
     }
     socket.sessionID = randomId();
     socket.userID = randomId();
@@ -290,5 +295,29 @@ tenant.on("connection", (socket) => {
     } else {
       console.log("Error occurs when trying to change user status");
     }
+  });
+
+  socket.on("end chat", () => {
+    console.log("hit end chat button", socket.userID);
+
+    users.length = 0;
+    sessionStore.findAllSessions().forEach((session) => {
+      //filter user by organization id and remove admin from user list
+      if (
+        session.tenantID == socket.nsp.name &&
+        "/" + session.userID != socket.nsp.name
+      ) {
+        users.push({
+          sessionID: session.sessionID,
+        });
+      }
+    });
+
+    let end_user = users.filter((user) => {
+      if (user.userID == socket.userID) {
+        return user.sessionID;
+      }
+    });
+    sessionStore.deleteSession(end_user);
   });
 });

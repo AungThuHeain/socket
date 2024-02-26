@@ -4,6 +4,7 @@
   findAllSessions() {}
   updateStatus(sessionID, status) {}
   updateConnected(sessionID, connected) {}
+  deleteSession(sessionID) {}
 }
 
 class InMemorySessionStore extends SessionStore {
@@ -43,6 +44,10 @@ class InMemorySessionStore extends SessionStore {
       return true;
     }
     return false;
+  }
+
+  deleteSession(sessionID) {
+    this.sessions.delete(sessionID);
   }
 }
 
