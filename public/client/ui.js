@@ -42,12 +42,35 @@ document.addEventListener("DOMContentLoaded", function () {
     // Append elements to the document
     document.body.appendChild(button);
     document.body.appendChild(divPopup);
+
+    //image view
+    const imagePopup = document.createElement("div");
+    imagePopup.setAttribute("id", "image_popup");
+    document.body.appendChild(imagePopup);
+    imagePopup.innerHTML = `
+    <div style="display:flex;justify-content:space-around;align-items: center;margin-block:10px;">
+        <div></div>
+        <div>
+            <a download="360chat-${new Date().toLocaleString()}" id="download_btn">
+               <img src="http://localhost:8000/images/downloading.png" style="width:20px;height:20px;"></img>
+            </a>
+        </div>
+        <div id="close_btn">
+              <img src="http://localhost:8000/images/close.png" style="width:20px;height:20px;"></img>
+        </div>
+    </div>
+    <div><img id="pop_image"></img></div>
+    `;
+
+    document.getElementById("close_btn").addEventListener("click", () => {
+        document.getElementById("image_popup").style.display = "none";
+    });
 });
 
 // add style for widget
 var link = document.createElement("link");
 link.rel = "stylesheet";
-link.href = "style.css";
+link.href = "http://localhost:8000/js/client-chat-js/style.css";
 document.head.appendChild(link);
 
 //add script cdn for axio
@@ -69,6 +92,9 @@ document.head.appendChild(socketScript);
 //get org_id and add as socket-server namespace
 let predefine_admin_id = "NRlo0oyhvTobHvuJSPAjgDKE8u3NaTNFsddj62pl";
 
+//global variable for local storage
+let session_id, user_name_session, user_id;
+
 setTimeout(function () {
     //get dom
     const form = document.querySelector("form");
@@ -89,6 +115,18 @@ setTimeout(function () {
         }
     );
 
+    //handle session data
+    socket.on("session", ({ sessionID, userID, userName }) => {
+        // attach the session ID to the next reconnection attempts
+        socket.auth = { sessionID: sessionID };
+        socket.userID = userID;
+
+        //assign with global variable
+        session_id = sessionID;
+        user_name_session = userName;
+        user_id = userID;
+    });
+
     //check first session
     if (sessionID) {
         socket.connect();
@@ -106,26 +144,6 @@ setTimeout(function () {
     socket.on("connect_error", (err) => {
         // the reason of the error, for example "xhr poll error"
         console.log(err.message);
-
-        // some additional description, for example the status code of the initial HTTP response
-        console.log(err.description);
-
-        // some additional context, for example the XMLHttpRequest object
-        console.log(err.context);
-    });
-
-    //handle session data
-    socket.on("session", ({ sessionID, userID, userName }) => {
-        // attach the session ID to the next reconnection attempts
-        //
-        socket.auth = { sessionID: sessionID };
-
-        // store it in the localStorage
-        localStorage.setItem("sessionID", sessionID);
-        localStorage.setItem("userNameSession", userName);
-        localStorage.setItem("userID", userID);
-        // save the ID of the user
-        socket.userID = userID;
     });
 
     //catch form submit event
@@ -147,11 +165,78 @@ setTimeout(function () {
                 msg: msg.value,
                 to: predefine_admin_id,
             };
+        }
 
+        socket.emit("user to admin", data);
+        (userName.value = ""), (msg.value = "");
+        userName.style.display = "none";
+    });
+
+    //show old message when old user reconnect
+    socket.on("get old message", (messages) => {
+        console.log(messages);
+        messages.forEach((message) => {
+            if (message.type == "text") {
+                if (message.sender == "user") {
+                    chat.innerHTML += `<p class="to"><span class="message-content">
+                    ${message.data}
+                    <small class="text-primary">${new Date(
+                        message.time
+                    ).toLocaleTimeString()}:  </small>
+                    </span></p>`;
+                } else {
+                    chat.innerHTML += `<p><span class="message-content">
+                    ${message.data}
+                    <small class="text-primary">${new Date(
+                        message.time
+                    ).toLocaleTimeString()}:  </small>
+                    </span></p>`;
+                }
+            } else if (message.type == "message") {
+                chat.innerHTML += `<p class='taking-message'>Admin talking with you</p>`;
+            } else {
+                if (message.user_name == "Admin") {
+                    chat.innerHTML += `
+                    <div class=""> <img src="${message.data}" alt="image" class="media-image object-cover mx-auto" style="width:150px;height:150px;max-width:100%;object-fit: contain;display:block;"></div>
+                   `;
+                } else {
+                    chat.innerHTML += `
+                    <div class="to-image"> <img src="${message.data}" alt="image" class="media-image object-cover mx-auto" style="width:150px;height:150px;max-width:100%;object-fit: contain;display:block;"></div>
+                    `;
+                }
+
+                const media_image = document.querySelectorAll(".media-image");
+                media_image.forEach((image) => {
+                    image.addEventListener("click", (e) => {
+                        document
+                            .getElementById("pop_image")
+                            .setAttribute("src", e.target.src);
+                        document.getElementById("download_btn").href =
+                            e.target.src;
+                        document.getElementById("image_popup").style.display =
+                            "block";
+                    });
+                });
+            }
+        });
+    });
+
+    //accept private message
+    socket.on("user to admin", (message) => {
+        console.log(message);
+        chat.innerHTML += `<p class="to"><span class="message-content">
+        ${message.data}
+        <small class="text-primary">${new Date(
+            message.time
+        ).toLocaleTimeString()}:  </small>
+        </span></p>`;
+
+        //call api
+        if (localStorage.getItem("sessionID")) {
             setTimeout(async () => {
                 const liveChatData = {
-                    msg: data.msg,
-                    room_id: socket.userID,
+                    msg: message.data,
+                    room_id: message.from,
                     user_id: null,
                 };
 
@@ -162,56 +247,61 @@ setTimeout(function () {
                 console.log("Live Chat Response:", res.data);
             }, 1000);
         } else {
+            // store it in the localStorage
+            localStorage.setItem("sessionID", session_id);
+            localStorage.setItem("userNameSession", user_name_session);
+            localStorage.setItem("userID", user_id);
+
             setTimeout(async () => {
                 //call api to save chat data
                 const chatData = {
-                    name: data.name,
-                    msg: data.msg,
+                    name: message.user_name,
+                    msg: message.data,
                     orgId: predefine_admin_id,
-                    room_id: socket.userID,
+                    room_id: message.from,
                 };
                 const initialChatApi = "http://localhost:8000/api/initial-chat";
                 const response = await axios.post(initialChatApi, chatData);
                 console.log("Response from API:", response.data);
-            }, 2000);
+            }, 1000);
         }
-
-        socket.emit("user to admin", data);
-        (userName.value = ""), (msg.value = "");
-        userName.style.display = "none";
-    });
-
-    //show old message when old user reconnect
-    socket.on("get old message", (messages) => {
-        console.log("get old messgae");
-        messages.forEach((message) => {
-            chat.innerHTML += `<p><span class="text-primary">${
-                message.user_name ?? "Admin"
-            }:  </span>${message.data}</p>`;
-        });
-    });
-
-    //accept private message
-    socket.on("user to admin", (message) => {
-        chat.innerHTML += `<p><span class="text-primary">${message.user_name}:  </span>${message.data}</p>`;
     });
 
     //accept private message
     socket.on("admin to client", (message) => {
-        chat.innerHTML += `<p><span class="text-primary">Admin:  </span>${message.data}</p>`;
+        chat.innerHTML += `<p><span class="message-content">
+        ${message.data}
+        <small class="text-primary">${new Date(
+            message.time
+        ).toLocaleTimeString()}:  </small>
+        </span></p>`;
     });
 
     //accept file upload
     socket.on("upload file", (data) => {
         console.log("file", data);
         document.querySelector(".input_file").value = "";
-        socket.emit("user list update");
 
-        chat.innerHTML += `
-          <div>
-              <img src=" ${data.url}">
-          </div>
-         `;
+        if (data.userName == "Admin") {
+            chat.innerHTML += `
+            <div class=""> <img src="${data.url}" alt="image" class="object-cover mx-auto media-image" style="width:150px;height:150px;max-width:100%;object-fit: contain;display:block;"></div>
+           `;
+        } else {
+            chat.innerHTML += `
+            <div class="to-image"> <img src="${data.url}" alt="image" class="object-cover mx-auto media-image" style="width:150px;height:150px;max-width:100%;object-fit: contain;display:block;"></div>
+            `;
+        }
+
+        const media_image = document.querySelectorAll(".media-image");
+        media_image.forEach((image) => {
+            image.addEventListener("click", (e) => {
+                document
+                    .getElementById("pop_image")
+                    .setAttribute("src", e.target.src);
+                document.getElementById("download_btn").href = e.target.src;
+                document.getElementById("image_popup").style.display = "block";
+            });
+        });
     });
 
     socket.on("take message", () => {
@@ -220,7 +310,7 @@ setTimeout(function () {
     });
 
     // end chat
-    endBtn.addEventListener("click", async() => {
+    endBtn.addEventListener("click", async () => {
         const endChatData = {
             room_id: socket.userID,
         };
@@ -230,7 +320,7 @@ setTimeout(function () {
             endChatData
         );
         console.log("End Chat Response:", res.data);
-
+        socket.emit("end chat");
         localStorage.removeItem("sessionID");
         localStorage.removeItem("userNameSession");
         localStorage.removeItem("userID");
