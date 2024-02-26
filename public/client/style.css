@@ -125,7 +125,7 @@ body {
 
 .footer-txt {
   font-size: 12px;
-  margin-top: 20px;
+  margin-top: 10px;
   margin-bottom: 0;
   padding: 10px 10px;
 }
@@ -151,4 +151,26 @@ body {
 .taking-message {
   text-align: center;
   color: rgb(17, 216, 17);
+}
+
+.end {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 30px;
+}
+
+.end-btn {
+  border: none;
+  background-color: #079cce;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 8px;
+  width: 50%;
+  color: white;
+  display: none;
+}
+
+.end-btn:hover {
+  background-color: #068db9;
 }

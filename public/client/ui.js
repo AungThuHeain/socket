@@ -29,12 +29,13 @@ document.addEventListener("DOMContentLoaded", function () {
     <div class="flex mb-10">
     <input type="text" id="msg" required placeholder="Type message.." name="msg" />
     <div class="">
-    <input type="file" onchange="upload(this.files,this.id)"  id="file" class="inputfile"/>
+    <input type="file"  onchange="upload(this.files,this.id)"   id="file" class="input_file"/>
     <label for="file" style="margin-top:20px;"><svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 18.999a.974.974 0 0 0 .196.563l-1.79 1.81a5.5 5.5 0 1 1-7.778-7.78L15.185 2.159a4 4 0 0 1 5.63 5.685L10.259 18.276a2.5 2.5 0 0 1-3.526-3.545l8-7.999.706.707-8 8a1.5 1.5 0 0 0 2.116 2.126L20.111 7.132a3 3 0 1 0-4.223-4.263L4.332 14.304a4.5 4.5 0 1 0 6.364 6.364L13 18.338zM19 14h-1v4h-4v.999h4V23h1v-4.001h4V18h-4z"/><path fill="none" d="M0 0h24v24H0z"/></svg></label>
     </div>
     <button type="submit" class="send-btn"><svg alt="Send" class="p-1" xmlns="http://www.w3.org/2000/svg" height="22" width="22">
     <path d="M3 20V4L22 12ZM5 17 16.85 12 5 7V10.5L11 12L5 13.5ZM5 17V12V7V10.5V13.5Z" ></path></svg></button>
     </div>
+    <div class="end"><button type="button" class="end-btn">End Chat</button></div>
     <p class="footer-txt">Powered by 360TimeSheet</p>
     </form>`;
 
@@ -65,6 +66,9 @@ socketScript.setAttribute(
 );
 document.head.appendChild(socketScript);
 
+//get org_id and add as socket-server namespace
+let predefine_admin_id = "NRlo0oyhvTobHvuJSPAjgDKE8u3NaTNFsddj62pl";
+
 setTimeout(function () {
     //get dom
     const form = document.querySelector("form");
@@ -75,22 +79,40 @@ setTimeout(function () {
     const userList = document.querySelector(".user-list");
     var sessionID = localStorage.getItem("sessionID");
     const userNameSession = localStorage.getItem("userNameSession");
+    const endBtn = document.querySelector(".end-btn");
 
-    //get org_id and add as socket-server namespace
-    let predefine_admin_id = "NRlo0oyhvTobHvuJSPAjgDKE8u3NaTNFsddj62pl";
-
-    const socket = io("https://socket-ie16.onrender.com/" + predefine_admin_id, {
-        transports: ["websocket"],
-        autoConnect: false,
-    });
+    const socket = io(
+        "https://socket-ie16.onrender.com/" + predefine_admin_id,
+        {
+            transports: ["websocket"],
+            autoConnect: false,
+        }
+    );
 
     //check first session
     if (sessionID) {
         socket.connect();
         socket.emit("get old message");
         userName.style.display = "none";
-        socket.auth = { sessionID: sessionID, name: userNameSession };
+        endBtn.style.display = "inline";
+        socket.auth = {
+            sessionID: sessionID,
+            name: userNameSession,
+            userID: localStorage.getItem("userID"),
+        };
     }
+
+    //handle connection error
+    socket.on("connect_error", (err) => {
+        // the reason of the error, for example "xhr poll error"
+        console.log(err.message);
+
+        // some additional description, for example the status code of the initial HTTP response
+        console.log(err.description);
+
+        // some additional context, for example the XMLHttpRequest object
+        console.log(err.context);
+    });
 
     //handle session data
     socket.on("session", ({ sessionID, userID, userName }) => {
@@ -101,6 +123,7 @@ setTimeout(function () {
         // store it in the localStorage
         localStorage.setItem("sessionID", sessionID);
         localStorage.setItem("userNameSession", userName);
+        localStorage.setItem("userID", userID);
         // save the ID of the user
         socket.userID = userID;
     });
@@ -108,6 +131,7 @@ setTimeout(function () {
     //catch form submit event
     form.addEventListener("submit", (e) => {
         e.preventDefault();
+        endBtn.style.display = "inline";
         socket.connect();
         socket.auth = { name: userName.value };
 
@@ -135,7 +159,7 @@ setTimeout(function () {
                     "http://localhost:8000/api/live-chat",
                     liveChatData
                 );
-                console.log("Live Chjat Response:", res.data);
+                console.log("Live Chat Response:", res.data);
             }, 1000);
         } else {
             setTimeout(async () => {
@@ -146,41 +170,10 @@ setTimeout(function () {
                     orgId: predefine_admin_id,
                     room_id: socket.userID,
                 };
-
-                if (localStorage.getItem("sessionID")) {
-                    data = {
-                        name: localStorage.getItem("userNameSession"),
-                        msg: msg.value,
-                        to: predefine_admin_id,
-                    };
-
-                    setTimeout(async () => {
-                        const liveChatData = {
-                            msg: data.msg,
-                            room_id: socket.userID,
-                            user_id: null,
-                        };
-
-                        const res = await axios.post("http://localhost:8000/api/live-chat", liveChatData);
-                        console.log("Live Chjat Response:", res.data);
-                    }, 1000);
-
-                } else {
-                    setTimeout(async () => {
-                        //call api to save chat data
-                        const chatData = {
-                            name: data.name,
-                            msg: data.msg,
-                            orgId: predefine_admin_id,
-                            room_id: socket.userID,
-                        };
-
-                        const initialChatApi = "http://localhost:8000/api/initial-chat";
-                        const response = await axios.post(initialChatApi, chatData);
-                        console.log("Response from API:", response.data);
-                    }, 1000);
-                }
-            });
+                const initialChatApi = "http://localhost:8000/api/initial-chat";
+                const response = await axios.post(initialChatApi, chatData);
+                console.log("Response from API:", response.data);
+            }, 2000);
         }
 
         socket.emit("user to admin", data);
@@ -192,8 +185,9 @@ setTimeout(function () {
     socket.on("get old message", (messages) => {
         console.log("get old messgae");
         messages.forEach((message) => {
-            chat.innerHTML += `<p><span class="text-primary">${message.user_name ?? "Admin"
-                }:  </span>${message.data}</p>`;
+            chat.innerHTML += `<p><span class="text-primary">${
+                message.user_name ?? "Admin"
+            }:  </span>${message.data}</p>`;
         });
     });
 
@@ -204,8 +198,43 @@ setTimeout(function () {
 
     //accept private message
     socket.on("admin to client", (message) => {
-        console.log("admin to client");
         chat.innerHTML += `<p><span class="text-primary">Admin:  </span>${message.data}</p>`;
+    });
+
+    //accept file upload
+    socket.on("upload file", (data) => {
+        console.log("file", data);
+        document.querySelector(".input_file").value = "";
+        socket.emit("user list update");
+
+        chat.innerHTML += `
+          <div>
+              <img src=" ${data.url}">
+          </div>
+         `;
+    });
+
+    socket.on("take message", () => {
+        console.log("user receive take message from server");
+        chat.innerHTML += `<p class='taking-message'>Admin talking with you</p>`;
+    });
+
+    // end chat
+    endBtn.addEventListener("click", async() => {
+        const endChatData = {
+            room_id: socket.userID,
+        };
+
+        const res = await axios.post(
+            "http://localhost:8000/api/end-chat",
+            endChatData
+        );
+        console.log("End Chat Response:", res.data);
+
+        localStorage.removeItem("sessionID");
+        localStorage.removeItem("userNameSession");
+        localStorage.removeItem("userID");
+        location.reload();
     });
 }, 1000);
 
@@ -216,4 +245,57 @@ function openForm() {
 
 function closeForm() {
     document.getElementById("myForm").style.display = "none";
+}
+
+function upload(files) {
+    const reader = new FileReader();
+
+    reader.readAsDataURL(files[0]);
+
+    reader.onload = function (event) {
+        imageUrl = event.target.result;
+
+        setTimeout(function () {
+            const userNameSession = localStorage.getItem("userNameSession");
+            var sessionID = localStorage.getItem("sessionID");
+            const userID = localStorage.getItem("userID");
+            const socket = io(
+                "https://socket-ie16.onrender.com/" + predefine_admin_id,
+                {
+                    transports: ["websocket"],
+                    autoConnect: true,
+                    maxHttpBufferSize: 2e8,
+                }
+            );
+            if (sessionID) {
+                socket.connect();
+                socket.auth = { sessionID: sessionID, name: userNameSession };
+            }
+            socket.on("connect_error", (err) => {
+                // the reason of the error, for example "xhr poll error"
+                console.log(err.message);
+
+                // some additional description, for example the status code of the initial HTTP response
+                console.log(err.description);
+
+                // some additional context, for example the XMLHttpRequest object
+                console.log(err.context);
+            });
+
+            const data = {
+                url: imageUrl,
+                to: predefine_admin_id,
+                from: userID,
+                userName: userNameSession,
+                panel: userID,
+            };
+
+            socket.emit("upload", data, (response) => {
+                console.log(response);
+            });
+        }, 1000);
+    };
+    reader.onerror = function (event) {
+        console.error("Image upload error", event.target.error);
+    };
 }
