@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 /**create express server */
 const server = app.listen("4000", () => {
-  console.log("server run on port 4000");
+  console.log("server running on port 4000");
 });
 
 // app.get("/admin", (res, req) => {
@@ -43,34 +43,36 @@ tenant.use((socket, next) => {
   if (sessionID) {
     // find existing session from server
     const server_session = sessionStore.findSession(sessionID);
-    console.log("server session", server_session);
+
     if (server_session) {
-      console.log("session shi");
       socket.sessionID = sessionID;
       socket.userID = server_session.userID;
       socket.username = server_session.userName;
       return next();
     } else {
-      socket.disconnect();
-      console.log("client disconnect because server don't have session");
-      // next(new Error("not session found"));
+      if (!socket.handshake.auth.adminId) {
+        //if user try to connect the server with local-storage credential after server down, it will return error
+        return next(new Error("No session on server"));
+      }
     }
   }
 
   // create new session
-
   if (socket.handshake.auth.adminId) {
+    console.log("admin Id", socket.handshake.auth.adminId);
     socket.sessionID = socket.handshake.auth.adminId;
     socket.userID = socket.handshake.auth.adminId;
     socket.username = "Admin";
   } else if (socket.handshake.auth.userID) {
+    console.log(socket.handshake.auth.userID);
     socket.userID = socket.handshake.auth.userID;
     socket.sessionID = sessionID;
     socket.username = userName;
   } else {
     if (!userName) {
-      return next(new Error("Need to add user name"));
+      return next(new Error("User name required"));
     }
+
     socket.sessionID = randomId();
     socket.userID = randomId();
     socket.username = userName;
@@ -118,7 +120,7 @@ tenant.on("connection", (socket) => {
   socket.join(socket.userID);
 
   //store session on server side and show when admin initiate
-  console.log("all session user", sessionStore.findAllSessions());
+
   sessionStore.findAllSessions().forEach((session) => {
     //remove admin user of tenant and filter 'waiting' status users to show admin panel
     if (
@@ -265,7 +267,6 @@ tenant.on("connection", (socket) => {
     };
     messageStore.saveMessage(message);
     tenant.to(id).to(socket.userID).emit("take message");
-    console.log("server send take message to user id", id, socket.userID);
 
     users.length = 0;
     sessionStore.findAllSessions().forEach((session) => {
