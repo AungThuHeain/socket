@@ -52,6 +52,7 @@ tenant.use((socket, next) => {
     } else {
       if (!socket.handshake.auth.adminId) {
         //if user try to connect the server with local-storage credential after server down, it will return error
+        console.log("no session on server");
         return next(new Error("No session on server"));
       }
     }
@@ -59,7 +60,6 @@ tenant.use((socket, next) => {
 
   // create new session
   if (socket.handshake.auth.adminId) {
-    console.log("admin Id", socket.handshake.auth.adminId);
     socket.sessionID = socket.handshake.auth.adminId;
     socket.userID = socket.handshake.auth.adminId;
     socket.username = "Admin";
