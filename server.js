@@ -285,7 +285,7 @@ tenant.on("connection", (socket) => {
 
   socket.on("transfer agent", (transferChatData) => {
     let update_data = {
-      agent_id: transferChatData.agent_id,
+      agent_id: transferChatData.user_id,
       session_status: "queue",
     };
 
