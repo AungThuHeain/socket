@@ -269,7 +269,7 @@ tenant.on("connection", (socket) => {
   socket.on("take message", (takeChatData) => {
     const message = {
       type: "message",
-      to: data.room_id,
+      to: takeChatData.room_id,
       from: socket.userID,
       time: new Date(),
     };
