@@ -274,7 +274,7 @@ tenant.on("connection", (socket) => {
       time: new Date(),
     };
     messageStore.saveMessage(message);
-    tenant.to(data.room_id).to(socket.userID).emit("take message");
+    tenant.to(takeChatData.room_id).to(socket.userID).emit("take message");
 
     let update_data = {
       agent_id: takeChatData.user_id,
