@@ -266,7 +266,7 @@ tenant.on("connection", (socket) => {
     messageStore.saveMessage(message);
   });
 
-  socket.on("take message", (data) => {
+  socket.on("take message", (takeChatData) => {
     const message = {
       type: "message",
       to: data.room_id,
@@ -276,16 +276,20 @@ tenant.on("connection", (socket) => {
     messageStore.saveMessage(message);
     tenant.to(data.room_id).to(socket.userID).emit("take message");
 
-    users.length = 0;
-
-    const taken_user = sessionStore.findSession(data.room_id);
-    console.log("taken user", taken_user);
     let update_data = {
-      agent_id: data.agent_id,
+      agent_id: takeChatData.user_id,
       session_status: "queue",
     };
-    sessionStore.updateStatus(data.room_id, update_data);
-    console.log("after updated", sessionStore.findSession(data.room_id));
+    sessionStore.updateStatus(takeChatData.room_id, update_data);
+  });
+
+  socket.on("transfer agent", (transferChatData) => {
+    let update_data = {
+      agent_id: transferChatData.user_id,
+      session_status: "queue",
+    };
+
+    sessionStore.updateStatus(transferChatData.room_id, update_data);
   });
 
   socket.on("end chat", () => {
