@@ -43,7 +43,7 @@ tenant.use((socket, next) => {
   if (sessionStoreID) {
     // find existing session from server
     const server_session = sessionStore.findSession(sessionStoreID);
-    console.log("server session", server_session);
+    console.log("session shi,here is server session", server_session);
     if (server_session) {
       socket.sessionID = sessionID;
       socket.userID = server_session.userID;
@@ -56,18 +56,22 @@ tenant.use((socket, next) => {
       }
     }
   }
+  console.log("session ma shi par");
 
   // create new session
   if (socket.handshake.auth.adminId) {
+    console.log("session ma shi  admin id par");
     socket.sessionID = socket.handshake.auth.adminId;
     socket.userID = socket.handshake.auth.adminId;
     socket.username = "Admin";
   } else if (socket.handshake.auth.userID) {
+    console.log("session ma shi , user id par");
     console.log(socket.handshake.auth.userID);
     socket.userID = socket.handshake.auth.userID;
     socket.sessionID = sessionID;
     socket.username = userName;
   } else {
+    console.log("session ma shi, admin and user id ma par");
     if (!userName) {
       return next(new Error("User name required"));
     }
