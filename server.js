@@ -43,7 +43,7 @@ tenant.use((socket, next) => {
   if (sessionStoreID) {
     // find existing session from server
     const server_session = sessionStore.findSession(sessionStoreID);
-
+    console.log("server session", server_session);
     if (server_session) {
       socket.sessionID = sessionID;
       socket.userID = server_session.userID;
