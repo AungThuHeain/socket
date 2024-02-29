@@ -39,10 +39,10 @@ const tenant = io.of(/^\/\w+$/); //create namespace for multiple organization (i
 tenant.use((socket, next) => {
   const sessionID = socket.handshake.auth.sessionID;
   const userName = socket.handshake.auth.name;
-
-  if (sessionID) {
+  const sessionStoreID = socket.handshake.auth.sessionStoreID;
+  if (sessionStoreID) {
     // find existing session from server
-    const server_session = sessionStore.findSession(sessionID);
+    const server_session = sessionStore.findSession(sessionStoreID);
 
     if (server_session) {
       socket.sessionID = sessionID;
@@ -51,8 +51,7 @@ tenant.use((socket, next) => {
       return next();
     } else {
       if (!socket.handshake.auth.adminId) {
-        //if user try to connect the server with local-storage credential after server down, it will return error
-        console.log("no session on server");
+        //if user try to connect the server with local-storage session after server down, it will return error
         return next(new Error("No session on server"));
       }
     }
@@ -87,25 +86,31 @@ tenant.on("connection", (socket) => {
     `User '${socket.username}-${socket.userID}' connected on organization '${socket.nsp.name}' server`
   );
 
+  console.log("All session users", sessionStore.findAllSessions());
+
   //save session data on server's storage
-  const oldSession = sessionStore.findSession(socket.sessionID);
+  const oldSession = sessionStore.findSession(socket.userID);
   if (oldSession) {
-    sessionStore.saveSession(socket.sessionID, {
+    console.log(socket.userID);
+    sessionStore.saveSession(socket.userID, {
       tenantID: socket.nsp.name,
       userID: socket.userID,
       userName: socket.username,
       connected: "active",
       status: oldSession.status,
       sessionID: socket.sessionID,
+      agentID: "",
     });
   } else {
-    sessionStore.saveSession(socket.sessionID, {
+    console.log(socket.userID);
+    sessionStore.saveSession(socket.userID, {
       tenantID: socket.nsp.name,
       userID: socket.userID,
       userName: socket.username,
       connected: "active",
       status: "waiting",
       sessionID: socket.sessionID,
+      agentID: "",
     });
   }
 
@@ -135,6 +140,7 @@ tenant.on("connection", (socket) => {
         userID: session.userID,
         userName: session.userName,
         sessionID: session.sessionID,
+        agentID: session.agentID,
       });
     }
   });
@@ -201,20 +207,21 @@ tenant.on("connection", (socket) => {
           status: session.status,
           userName: session.userName,
           connected: session.connected,
+          agentID: session.agentID,
         });
       }
     });
     socket.emit("waiting user list update", users);
   });
 
-  socket.on("queue user list update", () => {
+  socket.on("queue user list update", (agent_id) => {
     users.length = 0;
-
     sessionStore.findAllSessions().forEach((session) => {
       if (
         session.tenantID == socket.nsp.name &&
         "/" + session.userID != socket.nsp.name &&
-        session.status == "queue"
+        session.status == "queue" &&
+        session.agentID == agent_id
       ) {
         users.push({
           tenantID: socket.nsp.name,
@@ -222,6 +229,7 @@ tenant.on("connection", (socket) => {
           status: session.status,
           userName: session.userName,
           connected: session.connected,
+          agentID: session.agentID,
         });
       }
     });
@@ -239,7 +247,7 @@ tenant.on("connection", (socket) => {
       ` '${socket.username}' disconnected from room '${socket.userID}'`
     );
 
-    sessionStore.updateConnectedStatus(socket.sessionID, "inactive");
+    sessionStore.updateConnectedStatus(socket.userID, "inactive");
   });
 
   //image upload
@@ -258,67 +266,31 @@ tenant.on("connection", (socket) => {
     messageStore.saveMessage(message);
   });
 
-  socket.on("take message", (id) => {
+  socket.on("take message", (data) => {
     const message = {
       type: "message",
-      to: id,
+      to: data.room_id,
       from: socket.userID,
       time: new Date(),
     };
     messageStore.saveMessage(message);
-    tenant.to(id).to(socket.userID).emit("take message");
+    tenant.to(data.room_id).to(socket.userID).emit("take message");
 
     users.length = 0;
-    sessionStore.findAllSessions().forEach((session) => {
-      //filter user by organization id and remove admin from user list
-      if (
-        session.tenantID == socket.nsp.name &&
-        "/" + session.userID != socket.nsp.name
-      ) {
-        users.push({
-          connected: session.connected,
-          status: session.status,
-          tenantID: socket.nsp.name,
-          userID: session.userID,
-          userName: session.userName,
-          sessionID: session.sessionID,
-        });
-      }
-    });
 
-    let user = users.filter((user) => {
-      return user.userID == id;
-    });
-
-    if (user[0].sessionID) {
-      let session_id = user[0].sessionID;
-      sessionStore.updateStatus(session_id, "queue");
-    } else {
-      console.log("Error occurs when trying to change user status");
-    }
+    const taken_user = sessionStore.findSession(data.room_id);
+    console.log("taken user", taken_user);
+    let update_data = {
+      agent_id: data.agent_id,
+      session_status: "queue",
+    };
+    sessionStore.updateStatus(data.room_id, update_data);
+    console.log("after updated", sessionStore.findSession(data.room_id));
   });
 
   socket.on("end chat", () => {
     console.log("hit end chat button", socket.userID);
 
-    users.length = 0;
-    sessionStore.findAllSessions().forEach((session) => {
-      //filter user by organization id and remove admin from user list
-      if (
-        session.tenantID == socket.nsp.name &&
-        "/" + session.userID != socket.nsp.name
-      ) {
-        users.push({
-          sessionID: session.sessionID,
-        });
-      }
-    });
-
-    let end_user = users.filter((user) => {
-      if (user.userID == socket.userID) {
-        return user.sessionID;
-      }
-    });
-    sessionStore.deleteSession(end_user);
+    sessionStore.deleteSession(socket.userID);
   });
 });

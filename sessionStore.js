@@ -25,29 +25,30 @@ class InMemorySessionStore extends SessionStore {
     return [...this.sessions.values()];
   }
 
-  updateStatus(sessionID, status) {
-    let session = this.findSession(sessionID);
+  updateStatus(userID, update_data) {
+    let session = this.findSession(userID);
 
     if (session) {
-      session.status = status;
-      this.saveSession(sessionID, session);
+      session.status = update_data.session_status;
+      session.agentID = update_data.agent_id;
+      this.saveSession(userID, session);
       return true;
     }
     return false;
   }
 
-  updateConnectedStatus(sessionID, connected) {
-    let session = this.findSession(sessionID);
+  updateConnectedStatus(userID, connected) {
+    let session = this.findSession(userID);
     if (session) {
       session.connected = connected;
-      this.saveSession(sessionID, session);
+      this.saveSession(userID, session);
       return true;
     }
     return false;
   }
 
-  deleteSession(sessionID) {
-    this.sessions.delete(sessionID);
+  deleteSession(userID) {
+    this.sessions.delete(userID);
   }
 }
 
