@@ -99,7 +99,7 @@ tenant.on("connection", (socket) => {
       connected: "active",
       status: oldSession.status,
       sessionID: socket.sessionID,
-      agentID: "",
+      agentID: oldSession.agentID,
     });
   } else {
     console.log(socket.userID);
