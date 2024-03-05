@@ -55,7 +55,7 @@ tenant.use((socket, next) => {
         //if user try to connect the server with local-storage session after server down, it will return error
         return next(new Error("No session on server"));
       }
-      console.log("server session",  new Date().toLocaleTimeString())
+      console.log("server session", new Date().toLocaleTimeString());
     }
   }
 
@@ -69,9 +69,11 @@ tenant.use((socket, next) => {
     socket.sessionID = sessionID;
     socket.username = userName;
   } else {
-    console.log("new session",  new Date().toLocaleTimeString())
+    console.log("new session", new Date().toLocaleTimeString());
     if (!userName) {
-      return next(new Error("User name required" + new Date().toLocaleTimeString()));
+      return next(
+        new Error("User name required" + new Date().toLocaleTimeString())
+      );
     }
 
     socket.sessionID = randomId();
@@ -244,12 +246,18 @@ tenant.on("connection", (socket) => {
   });
 
   // connection disconnected
-  socket.on("disconnect", async () => {
+  socket.on("disconnect", async (reason, details) => {
     console.log(
       ` '${socket.username}' disconnected from room '${socket.userID}'`
     );
 
     sessionStore.updateConnectedStatus(socket.userID, "inactive");
+
+    const error = {
+      reason: reason,
+      details: details,
+    };
+    tenant.to(socket.userID).emit("disconnect event", error);
   });
 
   //image upload
