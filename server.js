@@ -71,7 +71,7 @@ tenant.use((socket, next) => {
   } else {
     console.log("new session",  new Date().toLocaleTimeString())
     if (!userName) {
-      return next(new Error("User name required"));
+      return next(new Error("User name required" + new Date().toLocaleTimeString()));
     }
 
     socket.sessionID = randomId();
