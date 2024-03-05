@@ -190,7 +190,7 @@ tenant.on("connection", (socket) => {
       to: data.to,
       time: new Date(),
     };
-    tenant.to(data.to).to(socket.userID).emit("user to admin", message);
+
     messageStore.saveMessage(message);
   });
 
@@ -244,12 +244,18 @@ tenant.on("connection", (socket) => {
   });
 
   // connection disconnected
-  socket.on("disconnect", async () => {
+  socket.on("disconnect", async (reason, details) => {
     console.log(
       ` '${socket.username}' disconnected from room '${socket.userID}'`
     );
 
     sessionStore.updateConnectedStatus(socket.userID, "inactive");
+
+    const error = {
+      reason: reason,
+      details: details,
+    };
+    tenant.to(socket.userID).emit("disconnect event", error);
   });
 
   //image upload
