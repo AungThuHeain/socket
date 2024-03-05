@@ -55,6 +55,7 @@ tenant.use((socket, next) => {
         //if user try to connect the server with local-storage session after server down, it will return error
         return next(new Error("No session on server"));
       }
+      console.log("server session",  new Date().toLocaleTimeString())
     }
   }
 
@@ -68,6 +69,7 @@ tenant.use((socket, next) => {
     socket.sessionID = sessionID;
     socket.username = userName;
   } else {
+    console.log("new session",  new Date().toLocaleTimeString())
     if (!userName) {
       return next(new Error("User name required"));
     }
