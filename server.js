@@ -27,6 +27,7 @@ const server = app.listen("4000", () => {
 
 /**create socket */
 const io = socket(server, {
+  transports: ["websocket"],
   maxHttpBufferSize: 20e6, //to increase max upload size for image upload,default upload max size is 1 mb(1e6)
   cors: {
     origins: "*",
@@ -71,6 +72,7 @@ tenant.use((socket, next) => {
   } else {
     console.log("new session", new Date().toLocaleTimeString());
     if (!userName) {
+      socket.connect();
       return next(
         new Error("User name required" + new Date().toLocaleTimeString())
       );
