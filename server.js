@@ -32,12 +32,6 @@ const io = socket(server, {
   cors: {
     origins: "*",
   },
-  connectionStateRecovery: {
-    // the backup duration of the sessions and the packets
-    maxDisconnectionDuration: 2 * 60 * 1000,
-    // whether to skip middlewares upon successful recovery
-    skipMiddlewares: true,
-  },
 });
 
 const tenant = io.of(/^\/\w+$/); //create namespace for multiple organization (io.of('org_one'),io.of('org_two)).In this case we need to accept random namespace so we used regex
