@@ -32,6 +32,12 @@ const io = socket(server, {
   cors: {
     origins: "*",
   },
+  connectionStateRecovery: {
+    // the backup duration of the sessions and the packets
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    // whether to skip middlewares upon successful recovery
+    skipMiddlewares: true,
+  },
 });
 
 const tenant = io.of(/^\/\w+$/); //create namespace for multiple organization (io.of('org_one'),io.of('org_two)).In this case we need to accept random namespace so we used regex
@@ -56,7 +62,6 @@ tenant.use((socket, next) => {
         //if user try to connect the server with local-storage session after server down, it will return error
         return next(new Error("No session on server"));
       }
-      console.log("server session", new Date().toLocaleTimeString());
     }
   }
 
@@ -70,7 +75,6 @@ tenant.use((socket, next) => {
     socket.sessionID = sessionID;
     socket.username = userName;
   } else {
-    console.log("new session", new Date().toLocaleTimeString());
     if (!userName) {
       return next(
         new Error("User name required" + new Date().toLocaleTimeString())
@@ -86,12 +90,11 @@ tenant.use((socket, next) => {
 });
 
 tenant.on("connection", (socket) => {
+  //define user value as empty array,we will use this value to filter user list
   const users = [];
   console.log(
-    `User '${socket.username}-${socket.userID}' connected on organization '${socket.nsp.name}' server`
+    `User '${socket.username}-${socket.userID}' from '${socket.nsp.name}' organization connected to socket server`
   );
-
-  console.log("All session users", sessionStore.findAllSessions());
 
   //save session data on server's storage
   const oldSession = sessionStore.findSession(socket.userID);
@@ -132,7 +135,7 @@ tenant.on("connection", (socket) => {
   //store session on server side and show when admin initiate
 
   sessionStore.findAllSessions().forEach((session) => {
-    //remove admin user of tenant and filter 'waiting' status users to show admin panel
+    //remove admin user of current organization(tenant) and filter 'waiting' status users to show admin panel
     if (
       session.tenantID == socket.nsp.name &&
       "/" + session.userID != socket.nsp.name &&
@@ -151,18 +154,18 @@ tenant.on("connection", (socket) => {
   });
 
   //emit user list to admin
-  socket.emit("initial user list", users);
+  socket.emit("waiting user list", users);
 
   //get chat history
-  socket.on("get message", (id) => {
+  socket.on("get old message for panel", (id) => {
     const message = messageStore.findMessagesForUser(id);
 
-    messageStore.saveMessage(message);
-    socket.emit("chat history", message);
+    //messageStore.saveMessage(message);
+    socket.emit("get old message for panel", message);
   });
 
   //send message to user
-  socket.on("admin to client", ({ data, to }) => {
+  socket.on("admin to user", ({ data, to }) => {
     const message = {
       type: "text",
       sender: "admin",
@@ -172,15 +175,15 @@ tenant.on("connection", (socket) => {
       time: new Date(),
     };
 
-    //emit to specific user and admin
-    tenant.to(to).to(socket.userID).emit("admin to client", message);
+    //emit to specific user and admin rooms
+    tenant.to(to).to(socket.userID).emit("admin to user", message);
     messageStore.saveMessage(message);
   });
 
   //get chat history to show in user widget
-  socket.on("get old message", () => {
+  socket.on("get old message for user", () => {
     const messages = messageStore.findMessagesForUser(socket.userID);
-    socket.emit("get old message", messages);
+    socket.emit("get old message for user", messages);
   });
 
   socket.on("user to admin", function (data) {
@@ -247,11 +250,7 @@ tenant.on("connection", (socket) => {
   });
 
   // connection disconnected
-  socket.on("disconnect", async (reason, details) => {
-    console.log(
-      ` '${socket.username}' disconnected from room '${socket.userID}' by ${reason},${details}`
-    );
-
+  socket.on("disconnect", () => {
     sessionStore.updateConnectedStatus(socket.userID, "inactive");
   });
 
@@ -298,8 +297,6 @@ tenant.on("connection", (socket) => {
   });
 
   socket.on("end chat", () => {
-    console.log("hit end chat button", socket.userID);
-
     sessionStore.deleteSession(socket.userID);
   });
 });
