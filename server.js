@@ -72,7 +72,6 @@ tenant.use((socket, next) => {
   } else {
     console.log("new session", new Date().toLocaleTimeString());
     if (!userName) {
-      socket.connect();
       return next(
         new Error("User name required" + new Date().toLocaleTimeString())
       );
