@@ -249,16 +249,10 @@ tenant.on("connection", (socket) => {
   // connection disconnected
   socket.on("disconnect", async (reason, details) => {
     console.log(
-      ` '${socket.username}' disconnected from room '${socket.userID}'`
+      ` '${socket.username}' disconnected from room '${socket.userID}' by ${reason},${details}`
     );
 
     sessionStore.updateConnectedStatus(socket.userID, "inactive");
-
-    const error = {
-      reason: reason,
-      details: details,
-    };
-    tenant.to(socket.userID).emit("disconnect event", error);
   });
 
   //image upload
