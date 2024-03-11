@@ -292,5 +292,6 @@ tenant.on("connection", (socket) => {
 
   socket.on("end chat", () => {
     sessionStore.deleteSession(socket.userID);
+    tenant.emit("end chat");
   });
 });
