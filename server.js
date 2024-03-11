@@ -290,8 +290,8 @@ tenant.on("connection", (socket) => {
     sessionStore.updateStatus(transferChatData.room_id, update_data);
   });
 
-  socket.on("end chat", () => {
+  socket.on("end chat", (predefine_admin_id) => {
     sessionStore.deleteSession(socket.userID);
-    tenant.emit("end chat");
+    tenant.to(predefine_admin_id).emit("end chat");
   });
 });
